@@ -447,6 +447,82 @@ def arbitrage_experiment(num_trials=100, rounds=100):
     return {"arb": arb_stat, "normal": norm_stat, "p": p}
 
 
+def volatile_market_arbitrage(num_trials=100, rounds=100):
+    """
+    Re-test arbitrage in a volatile-priced market where Greedy providers
+    create real price variation. The prior test used Fair providers only
+    (stable prices), so arbitrage had nothing to exploit.
+    """
+    print("\n=== Volatile Market Arbitrage ===\n")
+    print("(Mixed Greedy + Fair providers — real price variation)\n")
+
+    arb_profits = []
+    normal_profits = []
+    price_series_arb = []
+
+    for trial in range(num_trials):
+        agents = [
+            # Mix of greedy and fair — creates genuine price volatility
+            Agent("greedy_prov_1", Resource(gpu_hours=300), 20.0, GreedyStrategy(greed_factor=0.5), 0.1),
+            Agent("greedy_prov_2", Resource(gpu_hours=250), 15.0, GreedyStrategy(greed_factor=0.6), 0.1),
+            Agent("fair_prov",     Resource(gpu_hours=200), 20.0, FairStrategy(), 0.2),
+            Agent("normal_seeker", Resource(gpu_hours=5), 200.0, AdaptiveStrategy(), 0.7),
+            Agent("arbitrageur",   Resource(gpu_hours=50), 200.0, AdaptiveStrategy(price_belief=0.6), 0.5),
+        ]
+        sim = Simulator(agents, max_negotiation_turns=6, seed=trial)
+        arb_start = sim.agents["arbitrageur"].net_worth()
+        norm_start = sim.agents["normal_seeker"].net_worth()
+
+        trial_prices = []
+        for r in range(rounds):
+            demand = cyclic_demand(r, period=20)
+
+            if demand < 7:
+                # Low demand: buy from greedy providers (they're cheap now)
+                sim.agents["arbitrageur"].pending_needs = Resource(gpu_hours=12)
+                sim.agents["arbitrageur"].urgency = 0.2
+            else:
+                # High demand: sell inventory back into market (act as provider)
+                sim.agents["arbitrageur"].pending_needs = Resource()
+                sim.agents["arbitrageur"].urgency = 0.1
+
+            sim.agents["normal_seeker"].pending_needs = Resource(gpu_hours=demand)
+
+            m = sim.run_round(needs={
+                "normal_seeker": sim.agents["normal_seeker"].pending_needs,
+                "arbitrageur": sim.agents["arbitrageur"].pending_needs,
+            })
+            if m.avg_price_per_unit > 0:
+                trial_prices.append(m.avg_price_per_unit)
+
+        arb_profits.append(sim.agents["arbitrageur"].net_worth() - arb_start)
+        normal_profits.append(sim.agents["normal_seeker"].net_worth() - norm_start)
+        if trial_prices:
+            price_std = (sum((p - sum(trial_prices) / len(trial_prices)) ** 2
+                             for p in trial_prices) / len(trial_prices)) ** 0.5
+            price_series_arb.append(price_std)
+
+    arb_stat = describe(arb_profits)
+    norm_stat = describe(normal_profits)
+    vol_stat = describe(price_series_arb)
+    t, p = welch_t_test(arb_profits, normal_profits)
+    d = cohens_d(arb_profits, normal_profits)
+
+    print(f"Price volatility (std):   {vol_stat}")
+    print(f"Arbitrageur profit:       {arb_stat}")
+    print(f"Normal seeker profit:     {norm_stat}")
+    print(f"Difference: t={t:.3f}, p={p:.2e}, d={d:.3f}")
+
+    if arb_stat.mean > norm_stat.mean and p < 0.05:
+        print("Result: Arbitrage IS significantly profitable in volatile market")
+    elif p < 0.05:
+        print("Result: Still LESS profitable even with price volatility — arbitrage costs outweigh gains")
+    else:
+        print("Result: No significant difference")
+
+    return {"arb": arb_stat, "normal": norm_stat, "volatility": vol_stat, "p": p}
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("  EXPERIMENT 7: PREDICTIVE NEGOTIATION & FUTURES")
@@ -456,3 +532,4 @@ if __name__ == "__main__":
     spot_vs_futures()
     demand_pattern_analysis()
     arbitrage_experiment()
+    volatile_market_arbitrage()

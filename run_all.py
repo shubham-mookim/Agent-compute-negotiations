@@ -165,12 +165,83 @@ def run_exp7():
     print("=" * 60 + "\n")
 
     from experiments.exp7_futures import (
-        spot_vs_futures, demand_pattern_analysis, arbitrage_experiment,
+        spot_vs_futures, demand_pattern_analysis,
+        arbitrage_experiment, volatile_market_arbitrage,
     )
 
     spot_vs_futures()
     demand_pattern_analysis()
     arbitrage_experiment()
+    volatile_market_arbitrage()
+
+
+def run_exp8():
+    print("\n" + "=" * 60)
+    print("  EXPERIMENT 8: COALITION FORMATION")
+    print("=" * 60 + "\n")
+
+    from experiments.exp8_coalitions import (
+        run_solo_baseline, run_buyer_coalition, run_seller_coalition,
+        run_free_rider_test, run_size_sweep, run_stability_test,
+    )
+
+    print("--- Part 1: Solo Baseline ---\n")
+    solo = run_solo_baseline()
+    print(f"  Price/unit:       {solo['prices']}")
+    print(f"  Deal rate:        {solo['deal_rate']}")
+    print(f"  Seeker wealth Δ:  {solo['seeker_delta']}")
+
+    print("\n--- Part 2: Buyer Coalition ---\n")
+    buyer = run_buyer_coalition()
+    print(f"  Price/unit:         {buyer['prices']}")
+    print(f"  Coalition Δ:        {buyer['coalition_delta']}")
+    print(f"  Solo seeker Δ:      {buyer['solo_seeker_delta']}")
+
+    print("\n--- Part 3: Seller Cartel ---\n")
+    seller = run_seller_coalition()
+    if seller["cartel_price_per_unit"]:
+        print(f"  Cartel price/unit:   {seller['cartel_price_per_unit']}")
+    if seller["solo_price_per_unit"]:
+        print(f"  Solo provider price: {seller['solo_price_per_unit']}")
+    print(f"  Seeker total cost:   {seller['seeker_total_cost']}")
+
+    print("\n--- Part 4: Free-Rider Detection ---\n")
+    fr = run_free_rider_test()
+    print(f"  Detection rate:       {fr['detected_pct']:.0%}")
+    print(f"  Detection round:      {fr['detection_round']}")
+    print(f"  Free-rider Δ:         {fr['freerider_wealth_delta']}")
+    print(f"  Honest member Δ:      {fr['honest_member_wealth_delta']}")
+
+    print("\n--- Part 5: Coalition Size Sweep ---\n")
+    run_size_sweep()
+
+    print("\n--- Part 6: Stability Under Scarcity ---\n")
+    stab = run_stability_test()
+    print(f"  Stability rate:         {stab['stability_rate']:.0%}")
+    print(f"  Avg end size:           {stab['avg_end_size']:.1f}")
+    if stab["avg_defection_round"]:
+        print(f"  Avg defection round:    {stab['avg_defection_round']:.1f}")
+
+
+def run_exp9():
+    print("\n" + "=" * 60)
+    print("  EXPERIMENT 9: RL LEARNING AGENTS")
+    print("=" * 60 + "\n")
+
+    from experiments.exp9_learning import (
+        run_learning_curve, run_convergence_test,
+        run_rl_vs_rules, run_rl_mixed_population,
+        run_strategy_transfer, inspect_emergent_policy,
+        run_tier_comparison,
+    )
+
+    run_learning_curve(total_rounds=1000)
+    run_convergence_test(num_trials=100, rounds_per_trial=500)
+    run_rl_vs_rules(num_trials=200, rounds=300)
+    run_rl_mixed_population(num_trials=100, rounds=300)
+    run_strategy_transfer()
+    inspect_emergent_policy(rounds=1000)
+    run_tier_comparison(num_trials=100, rounds=300)
 
 
 def main():
@@ -184,6 +255,8 @@ def main():
         "5": run_exp5,
         "6": run_exp6,
         "7": run_exp7,
+        "8": run_exp8,
+        "9": run_exp9,
     }
 
     if len(sys.argv) > 1:
