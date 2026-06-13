@@ -133,10 +133,10 @@ def run_exp5():
     )
 
     api_ok = check_api_available()
-    num = 20 if api_ok else 10
+    num = 10 if api_ok else 5
     llm_vs_llm(num_trials=num)
     llm_vs_rule_based(num_trials=num)
-    mixed_population(num_trials=5 if api_ok else 3)
+    mixed_population(num_trials=3, rounds=20)
 
 
 def run_exp6():
