@@ -65,11 +65,29 @@ Two agents negotiate compute. Tests every strategy combination and tracks price 
 | **Adaptive** | Learns price from deal history, adjusts beliefs | Markets with stable pricing |
 | **Broker** | Middleman that takes a commission | When supply and demand are separated |
 
+## Experiments 4-7 (Phase A-D)
+
+### Experiment 4: Statistical Rigor
+Re-runs experiments 1-3 with 1000 trials. All strategy differences confirmed significant (p < 0.001). Fair provider dominance holds with Cohen's d > 15. Gini coefficient = 0.094.
+
+### Experiment 5: LLM Agents (needs `ANTHROPIC_API_KEY`)
+Claude-powered agents negotiate in natural language. Tests LLM vs LLM, LLM vs rule-based, and mixed populations. Includes fallback mode for running without API key.
+
+### Experiment 6: Deep Cheater Analysis
+**Key finding:** Detection threshold is ~30% cheat rate with a sharp phase transition. Collaborative reputation (gossip) improves detection from 0% to 16% at 10% cheat rate (p < 0.001, d = 0.94). Adaptive cheaters paradoxically get caught more — simple rate-adjustment overshoots.
+
+### Experiment 7: Futures Market
+Spot vs futures market comparison. In Fair-priced markets, futures add no efficiency benefit and arbitrage is unprofitable. Price-volatile markets (Greedy/mixed) likely needed for futures to matter.
+
+## Documentation
+
+- `CLAUDE.md` — Full project context for AI agents picking up this work
+- `docs/PROGRESS.md` — End-to-end report: results, roadmap, research landscape, bibliography
+
 ## What's Next
 
-See the exploration doc for Phase 4 (Predictive Negotiation) and Phase 5 (Coalition & Coordination). Interesting next experiments:
-
-- **LLM-powered agents** that negotiate in natural language
-- **Coalition formation** — agents pooling resources and splitting profits
-- **Compute futures** — agents trading rights to compute they don't own yet
-- **Mixed intelligence** — what happens when an LLM agent negotiates with rule-based ones?
+- **LLM-powered experiments** with real Claude API (needs key)
+- **Coalition formation** — agents pooling resources, free-rider detection
+- **Reputation-aware adaptive cheater** — can it stay below detection threshold?
+- **Mixed-strategy markets** — introduce price volatility to test arbitrage viability
+- **Paper writing** — target AAMAS, AAAI, or JASSS

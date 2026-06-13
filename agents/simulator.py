@@ -88,9 +88,10 @@ class Simulator:
             messages.append(response)
 
             if response.msg_type == MessageType.ACCEPT:
-                # Deal made!
+                # Deal made — notify buyer so learning strategies get their reward signal
                 resource = Resource.from_dict(response.payload.get("resource", need.to_dict()))
                 price = response.payload.get("price", 0)
+                buyer.receive(response)
                 return NegotiationResult(
                     buyer_id=buyer.agent_id,
                     seller_id=seller.agent_id,
@@ -102,6 +103,7 @@ class Simulator:
                 )
 
             if response.msg_type == MessageType.REJECT:
+                buyer.receive(response)
                 return NegotiationResult(
                     buyer_id=buyer.agent_id,
                     seller_id=seller.agent_id,
@@ -121,6 +123,7 @@ class Simulator:
             if buyer_response.msg_type == MessageType.ACCEPT:
                 resource = Resource.from_dict(buyer_response.payload.get("resource", need.to_dict()))
                 price = buyer_response.payload.get("price", 0)
+                seller.receive(buyer_response)  # notify seller of buyer's accept
                 return NegotiationResult(
                     buyer_id=buyer.agent_id,
                     seller_id=seller.agent_id,
