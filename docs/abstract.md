@@ -2,7 +2,6 @@
 
 **Authors:** Shubham Mookim
 
-**Target venue:** AAMAS 2026 Workshop on Agent-Based Markets / Extended Abstract
 
 ---
 
