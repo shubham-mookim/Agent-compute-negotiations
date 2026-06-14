@@ -534,6 +534,55 @@ request|*|price_fair|high_urg         → ACCEPT   (direct requests at fair = ac
 
 ---
 
+### Experiment 11: REAL Compute Contention (grounds the whole project)
+
+**The fix for the project's deepest weakness.** Until now, every "resource"
+was an abstract number — no process ran, no memory was allocated. Experiment
+11 makes agents contend for **real execution slots** on the host, running
+**real CPU workloads** (chained SHA-256) and allocating **real memory**
+(measured via getrusage). Costs $0 — only burns this machine's own CPU/RAM.
+
+**Setup:** 4-core host, 3 real execution slots, 12 heterogeneous jobs (short-urgent,
+long-batch, medium, memory-heavy up to 128 MB), 3 trials. ProcessPoolExecutor
+enforces the real concurrency limit. Four allocation regimes run the *identical*
+real workload.
+
+**Results (averaged across trials):**
+
+| Regime | Makespan | Urgent Latency | Welfare | Fairness | Mean Completion |
+|--------|----------|----------------|---------|----------|-----------------|
+| FIFO (naive central) | 1.67s | 0.84s | 12.2 | 0.44 | 0.96s |
+| SJF (shortest-first) | 1.52s | 0.22s | 25.9 | 0.35 | 0.72s |
+| **Urgency (smart central)** | **1.40s** | **0.17s** | **27.0** | **0.31** | **0.66s** |
+| Market (decentralized bid) | 1.51s | 0.24s | 23.1 | 0.32 | 0.70s |
+
+**Key findings (REAL, not simulated):**
+
+1. **Centralized urgency scheduling wins on every metric** — best makespan,
+   best urgent latency (0.17s), best welfare (27.0). When a trusted authority
+   can see true urgency, it should just schedule directly.
+2. **Decentralized market allocation costs ~15% welfare** vs centralized urgency.
+   Willingness-to-pay (urgency × budget) is a *noisy* proxy for true urgency —
+   a high-budget low-urgency agent can outbid a genuinely urgent job.
+3. **But the market beats naive FIFO by 71%** on urgent latency (0.24s vs 0.84s).
+   Any priority signal — even a noisy market one — vastly beats no signal.
+4. **FIFO is catastrophic for urgent work** — long batch jobs block slots,
+   urgent jobs wait behind them (0.84s latency, welfare 12.2).
+
+**The honest conclusion this gives the project:** decentralized negotiation is
+NOT free. It loses to a central scheduler *when a trusted central scheduler is
+possible*. Its value is confined to the case the central scheduler can't
+handle — multiple distrusting parties with no shared authority to report
+urgency to. This reframes the entire project's thesis honestly: we're not
+claiming negotiation is better; we're mapping *when* it's the only option and
+what it costs.
+
+**Detailed outputs dumped:** `logs/exp11_real_compute_detail.json` (full per-job
+records with real PIDs, CPU-seconds, peak memory) and
+`logs/exp11_real_compute_jobs.csv` (flat per-job rows for analysis).
+
+---
+
 ## 7. Key Research Insights (Final)
 
 ### Confirmed Findings

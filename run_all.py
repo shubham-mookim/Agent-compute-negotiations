@@ -263,6 +263,11 @@ def run_exp10():
     theoretical_baseline()
 
 
+def run_exp11():
+    from experiments.exp11_real_compute import run_real_compute
+    run_real_compute(n_jobs=12, trials=3, target_job_seconds=0.3)
+
+
 def main():
     Path("logs").mkdir(exist_ok=True)
 
@@ -277,6 +282,7 @@ def main():
         "8": run_exp8,
         "9": run_exp9,
         "10": run_exp10,
+        "11": run_exp11,
     }
 
     if len(sys.argv) > 1:
