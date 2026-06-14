@@ -174,6 +174,11 @@ class Simulator:
             buyer.budget -= result.price
             seller.budget += result.price
 
+            # Track utility: what the buyer acquired and at what cost
+            buyer.total_needs_fulfilled = buyer.total_needs_fulfilled + result.resource
+            buyer.total_fair_value_acquired += result.resource.total_units()
+            buyer.total_price_paid += result.price
+
             # Record deals on both sides
             buyer.record_deal(Deal(
                 partner_id=seller.agent_id,
@@ -220,6 +225,11 @@ class Simulator:
         if needs:
             for agent_id, need in needs.items():
                 self.agents[agent_id].pending_needs = need
+
+        # Track what each agent requested this round (for utility metric)
+        for a in self.agents.values():
+            if a.pending_needs.total_units() > 0:
+                a.total_needs_requested = a.total_needs_requested + a.pending_needs
 
         buyers = [a for a in self.agents.values() if a.pending_needs.total_units() > 0]
         sellers = [a for a in self.agents.values() if a.pending_needs.total_units() == 0]

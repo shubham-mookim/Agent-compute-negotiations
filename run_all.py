@@ -244,6 +244,24 @@ def run_exp9():
     run_tier_comparison(num_trials=100, rounds=300)
 
 
+def run_exp10():
+    print("\n" + "=" * 60)
+    print("  EXPERIMENT 10: ROBUSTNESS & THEORETICAL GROUNDING")
+    print("=" * 60 + "\n")
+
+    from experiments.exp10_robustness import (
+        sweep_greedy_factor, sweep_fairness_tolerance,
+        sweep_patience, sweep_cross_strategy,
+        theoretical_baseline,
+    )
+
+    sweep_greedy_factor()
+    sweep_fairness_tolerance()
+    sweep_patience()
+    sweep_cross_strategy()
+    theoretical_baseline()
+
+
 def main():
     Path("logs").mkdir(exist_ok=True)
 
@@ -257,6 +275,7 @@ def main():
         "7": run_exp7,
         "8": run_exp8,
         "9": run_exp9,
+        "10": run_exp10,
     }
 
     if len(sys.argv) > 1:

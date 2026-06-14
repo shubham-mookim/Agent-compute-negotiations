@@ -52,6 +52,12 @@ class Agent:
     message_log: list[Message] = field(default_factory=list)
     _active_negotiations: dict[str, dict] = field(default_factory=dict)
 
+    # Utility tracking — cumulative across rounds
+    total_needs_requested: Resource = field(default_factory=Resource)
+    total_needs_fulfilled: Resource = field(default_factory=Resource)
+    total_fair_value_acquired: float = 0.0
+    total_price_paid: float = 0.0
+
     def reputation_of(self, other_id: str) -> float:
         """Get our local reputation score for another agent. Default 0.5 (neutral)."""
         return self.reputation_table.get(other_id, 0.5)
@@ -83,6 +89,16 @@ class Agent:
     def net_worth(self) -> float:
         """Simple metric: budget + resource value."""
         return self.budget + self.resources.total_units()
+
+    def utility(self, w_fulfill: float = 0.7, w_efficiency: float = 0.3) -> float:
+        """Needs-based utility: rewards acquiring compute, penalizes overpaying."""
+        requested = self.total_needs_requested.total_units()
+        fulfilled = self.total_needs_fulfilled.total_units()
+        fulfill_ratio = fulfilled / requested if requested > 0 else 0.0
+        efficiency = (self.total_fair_value_acquired / self.total_price_paid
+                      if self.total_price_paid > 0 else 0.0)
+        efficiency = min(efficiency, 1.0)
+        return w_fulfill * fulfill_ratio + w_efficiency * efficiency
 
     def __repr__(self) -> str:
         return (

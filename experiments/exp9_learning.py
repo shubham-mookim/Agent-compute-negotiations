@@ -128,8 +128,7 @@ def run_convergence_test(num_trials=100, rounds_per_trial=500):
 
 def run_rl_vs_rules(num_trials=200, rounds=300, seed_offset=0):
     """
-    Compare final wealth: RL agent vs each rule-based strategy.
-    RL needs warmup rounds so we give it plenty of time.
+    Compare final wealth AND utility: RL agent vs each rule-based strategy.
     """
     print("\n=== Part 2: RL vs Rule-Based Strategies ===\n")
 
@@ -142,6 +141,7 @@ def run_rl_vs_rules(num_trials=200, rounds=300, seed_offset=0):
     }
 
     wealth_results: dict[str, list[float]] = {k: [] for k in strategies}
+    utility_results: dict[str, list[float]] = {k: [] for k in strategies}
 
     for trial in range(num_trials):
         for strat_name, strat_factory in strategies.items():
@@ -163,8 +163,9 @@ def run_rl_vs_rules(num_trials=200, rounds=300, seed_offset=0):
                 sim.run_round(pairings=[(f"{strat_name}_buyer", provider.agent_id)])
 
             wealth_results[strat_name].append(buyer.net_worth() - start)
+            utility_results[strat_name].append(buyer.utility())
 
-    # Rankings
+    # Wealth rankings
     print(f"{'Strategy':<12} {'Wealth Δ':>20} {'Std':>8}")
     print("-" * 44)
     ranked = sorted(
@@ -176,8 +177,20 @@ def run_rl_vs_rules(num_trials=200, rounds=300, seed_offset=0):
         stat = describe(deltas)
         print(f"{name:<12} {stat.mean:>+10.1f} ±{stat.ci_upper - stat.mean:.1f}   {stat.std:>8.1f}")
 
+    # Utility rankings (needs-based)
+    print(f"\n{'Strategy':<12} {'Utility':>20} {'Fulfill%':>10}")
+    print("-" * 46)
+    ranked_u = sorted(
+        utility_results.items(),
+        key=lambda x: sum(x[1]) / len(x[1]),
+        reverse=True,
+    )
+    for name, vals in ranked_u:
+        stat = describe(vals)
+        print(f"{name:<12} {stat.mean:>10.4f} ±{stat.ci_upper - stat.mean:.4f}")
+
     # Statistical comparisons vs RL
-    print("\n--- Pairwise vs RL ---")
+    print("\n--- Pairwise vs RL (wealth) ---")
     rl_vals = wealth_results["rl"]
     for name, vals in ranked:
         if name == "rl":
@@ -188,7 +201,18 @@ def run_rl_vs_rules(num_trials=200, rounds=300, seed_offset=0):
         direction = ">" if sum(rl_vals) / len(rl_vals) > sum(vals) / len(vals) else "<"
         print(f"  rl {direction} {name:<12}: t={t:.2f}, p={p:.2e}, d={d:.2f} {sig}")
 
-    return wealth_results
+    print("\n--- Pairwise vs RL (utility) ---")
+    rl_util = utility_results["rl"]
+    for name, vals in ranked_u:
+        if name == "rl":
+            continue
+        t, p = welch_t_test(rl_util, vals)
+        d = cohens_d(rl_util, vals)
+        sig = "***" if p < 0.001 else "**" if p < 0.01 else "*" if p < 0.05 else "ns"
+        direction = ">" if sum(rl_util) / len(rl_util) > sum(vals) / len(vals) else "<"
+        print(f"  rl {direction} {name:<12}: t={t:.2f}, p={p:.2e}, d={d:.2f} {sig}")
+
+    return {"wealth": wealth_results, "utility": utility_results}
 
 
 # ── Part 3: RL in Mixed Population ────────────────────────────────────────
@@ -363,23 +387,20 @@ def inspect_emergent_policy(rounds=1000, seed=42):
 
 def run_tier_comparison(num_trials=100, rounds=300):
     """
-    Full intelligence tier comparison.
-    Tier 1 = rule-based, Tier 2 = RL.
-    (Tier 3 = LLM, placeholder for when API key is available.)
+    Full intelligence tier comparison using BOTH metrics:
+    - Wealth delta (old metric — rewards hoarding)
+    - Utility (new metric — rewards needs fulfilled + cost efficiency)
     """
     print("\n=== Part 6: Intelligence Tier Comparison ===\n")
 
-    results: dict[str, list[float]] = {}
+    wealth_results: dict[str, list[float]] = {}
+    utility_results: dict[str, list[float]] = {}
 
     tier1_strategies = {
         "T1-Greedy": lambda: GreedyStrategy(),
         "T1-Fair": lambda: FairStrategy(),
         "T1-Patient": lambda: PatientStrategy(),
         "T1-Adaptive": lambda: AdaptiveStrategy(),
-    }
-    tier2_strategies = {
-        "T2-RL(fresh)": lambda: QLearningStrategy(epsilon=0.40),
-        "T2-RL(pretrained)": None,  # handle below
     }
 
     # Pretrain RL agent
@@ -394,7 +415,7 @@ def run_tier_comparison(num_trials=100, rounds=300):
     for _ in range(500):
         _buyer.pending_needs = Resource(gpu_hours=5)
         _sim.run_round(pairings=[("pretrain", random.choice(_provs).agent_id)])
-    pretrained_rl.epsilon = 0.05  # mostly exploit after pretraining
+    pretrained_rl.epsilon = 0.05
 
     for trial in range(num_trials):
         providers = [
@@ -410,7 +431,8 @@ def run_tier_comparison(num_trials=100, rounds=300):
             for _ in range(rounds):
                 buyer.pending_needs = Resource(gpu_hours=5)
                 sim.run_round(pairings=[("b", random.choice(providers).agent_id)])
-            results.setdefault(strat_name, []).append(buyer.net_worth() - start)
+            wealth_results.setdefault(strat_name, []).append(buyer.net_worth() - start)
+            utility_results.setdefault(strat_name, []).append(buyer.utility())
 
         # Fresh RL
         fresh_rl = QLearningStrategy(epsilon=0.40)
@@ -420,40 +442,64 @@ def run_tier_comparison(num_trials=100, rounds=300):
         for _ in range(rounds):
             buyer_fresh.pending_needs = Resource(gpu_hours=5)
             sim_fresh.run_round(pairings=[("b_fresh", random.choice(providers).agent_id)])
-        results.setdefault("T2-RL(fresh)", []).append(buyer_fresh.net_worth() - start_fresh)
+        wealth_results.setdefault("T2-RL(fresh)", []).append(buyer_fresh.net_worth() - start_fresh)
+        utility_results.setdefault("T2-RL(fresh)", []).append(buyer_fresh.utility())
 
-        # Pretrained RL (reuse shared weights but fresh agent state)
+        # Pretrained RL
         buyer_pre = Agent("b_pre", Resource(), 200.0, pretrained_rl, 0.7)
         sim_pre = Simulator(providers + [buyer_pre], max_negotiation_turns=6, seed=trial + 60000)
         start_pre = buyer_pre.net_worth()
         for _ in range(rounds):
             buyer_pre.pending_needs = Resource(gpu_hours=5)
             sim_pre.run_round(pairings=[("b_pre", random.choice(providers).agent_id)])
-        results.setdefault("T2-RL(pretrained)", []).append(buyer_pre.net_worth() - start_pre)
+        wealth_results.setdefault("T2-RL(pretrained)", []).append(buyer_pre.net_worth() - start_pre)
+        utility_results.setdefault("T2-RL(pretrained)", []).append(buyer_pre.utility())
 
-    print(f"\n{'Agent':<22} {'Tier':<8} {'Wealth Δ':>20}")
+    # ── Wealth ranking (old metric) ──
+    print(f"{'Agent':<22} {'Tier':<8} {'Wealth Δ':>20}")
     print("-" * 54)
-    ranked = sorted(results.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)
-    for name, vals in ranked:
+    ranked_w = sorted(wealth_results.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)
+    for name, vals in ranked_w:
         tier = "Tier 1" if name.startswith("T1") else "Tier 2"
         stat = describe(vals)
         print(f"{name:<22} {tier:<8} {stat.mean:>+10.1f} ±{stat.ci_upper - stat.mean:.1f}")
 
-    print("\n  [Tier 3 - LLM agents: pending ANTHROPIC_API_KEY]")
+    # ── Utility ranking (new metric) ──
+    print(f"\n{'Agent':<22} {'Tier':<8} {'Utility':>20}")
+    print("-" * 54)
+    ranked_u = sorted(utility_results.items(), key=lambda x: sum(x[1]) / len(x[1]), reverse=True)
+    for name, vals in ranked_u:
+        tier = "Tier 1" if name.startswith("T1") else "Tier 2"
+        stat = describe(vals)
+        print(f"{name:<22} {tier:<8} {stat.mean:>10.4f} ±{stat.ci_upper - stat.mean:.4f}")
 
-    # Check if Tier 2 > Tier 1 best
-    t2_pre = results.get("T2-RL(pretrained)", [])
-    t1_best_name = max(
-        [k for k in results if k.startswith("T1")],
-        key=lambda k: sum(results[k]) / len(results[k]),
-    )
-    t1_best = results[t1_best_name]
-    t, p = welch_t_test(t2_pre, t1_best)
-    d = cohens_d(t2_pre, t1_best)
-    direction = ">" if sum(t2_pre) / len(t2_pre) > sum(t1_best) / len(t1_best) else "<"
-    print(f"\n  T2-RL(pretrained) {direction} {t1_best_name}: t={t:.2f}, p={p:.2e}, d={d:.2f}")
+    # ── Does ranking change? ──
+    wealth_order = [n for n, _ in ranked_w]
+    utility_order = [n for n, _ in ranked_u]
+    if wealth_order == utility_order:
+        print("\n  Ranking is IDENTICAL under both metrics.")
+    else:
+        print(f"\n  RANKING CHANGES under utility metric!")
+        print(f"    Wealth order:  {' > '.join(wealth_order)}")
+        print(f"    Utility order: {' > '.join(utility_order)}")
 
-    return results
+    # Statistical comparison
+    t2_pre_w = wealth_results.get("T2-RL(pretrained)", [])
+    t2_pre_u = utility_results.get("T2-RL(pretrained)", [])
+    t1_best_w = max([k for k in wealth_results if k.startswith("T1")],
+                    key=lambda k: sum(wealth_results[k]) / len(wealth_results[k]))
+    t1_best_u = max([k for k in utility_results if k.startswith("T1")],
+                    key=lambda k: sum(utility_results[k]) / len(utility_results[k]))
+
+    t, p = welch_t_test(t2_pre_w, wealth_results[t1_best_w])
+    d = cohens_d(t2_pre_w, wealth_results[t1_best_w])
+    print(f"\n  Wealth:  T2-RL vs {t1_best_w}: t={t:.2f}, p={p:.2e}, d={d:.2f}")
+
+    t, p = welch_t_test(t2_pre_u, utility_results[t1_best_u])
+    d = cohens_d(t2_pre_u, utility_results[t1_best_u])
+    print(f"  Utility: T2-RL vs {t1_best_u}: t={t:.2f}, p={p:.2e}, d={d:.2f}")
+
+    return {"wealth": wealth_results, "utility": utility_results}
 
 
 # ── Main ───────────────────────────────────────────────────────────────────
