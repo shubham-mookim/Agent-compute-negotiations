@@ -6,6 +6,12 @@ Requires either OPENAI_API_KEY or ANTHROPIC_API_KEY environment variable.
 
 This is the Tier 3 intelligence level — agents that can reason about
 context, detect bluffs, and strategize in ways rule-based agents can't.
+
+Two prompt variants:
+  - NAIVE:      minimal instructions, tests raw LLM negotiation ability
+  - ENGINEERED: production-grade prompt with pricing framework, strategy
+                guidelines, and structured reasoning — what you'd actually
+                ship in a real agentic product
 """
 
 from __future__ import annotations
@@ -24,11 +30,9 @@ from agents.resource import Resource
 
 _openai_client = None
 _anthropic_client = None
-_provider: str | None = None
 
 
 def _detect_provider() -> str:
-    """Detect which API is available. Prefers OpenAI if both are set."""
     if os.environ.get("OPENAI_API_KEY"):
         return "openai"
     if os.environ.get("ANTHROPIC_API_KEY"):
@@ -58,31 +62,75 @@ def _get_anthropic_client():
     return _anthropic_client
 
 
-SYSTEM_PROMPT = """You are an autonomous agent negotiating for compute resources in a decentralized market.
+NAIVE_SYSTEM_PROMPT = """You are an autonomous agent negotiating for compute resources.
 
-You have:
-- A budget (abstract currency) to spend on compute
-- Resources you currently hold (GPU hours, CPU hours, memory)
-- A reputation table of how much you trust other agents
-- Knowledge of your past deals
-
-Your goal is to maximize your utility: get the compute you need at the best price, or sell your excess compute profitably.
-
-When you receive a negotiation message, respond with a JSON object:
+Respond with a JSON object:
 {
     "action": "accept" | "reject" | "counter",
-    "reasoning": "brief explanation of your thinking",
+    "reasoning": "brief explanation",
     "price": <number if countering>,
     "resource": {"gpu_hours": <n>, "cpu_hours": <n>, "memory_gb_hours": <n>}
 }
 
-Be strategic but not adversarial. Consider:
-- Your urgency (how badly you need this deal)
-- The other agent's reputation
-- Whether this price is fair based on your history
-- Whether you can get a better deal elsewhere
+Always respond with valid JSON only."""
 
-Keep reasoning concise (1-2 sentences). Always respond with valid JSON only."""
+
+ENGINEERED_SYSTEM_PROMPT = """You are an autonomous compute-resource negotiation agent deployed in a decentralized marketplace. You represent a single participant (buyer or seller) and must maximize your principal's utility over multiple negotiation rounds.
+
+## Your Objective
+Maximize: (value_of_compute_acquired - price_paid) if buying, or (price_received - cost_of_compute_sold) if selling. A deal at fair price is better than no deal. No deal is better than a bad deal.
+
+## Pricing Framework
+- Fair market price is approximately 1.0 currency per compute-unit (1 GPU-hour = 1 unit).
+- A "good" buy is anything below 1.0/unit. A "bad" buy is above 1.15/unit.
+- A "good" sell is anything above 1.0/unit. A "bad" sell is below 0.85/unit.
+- Your walk-away price (BATNA) depends on your urgency: high urgency = accept wider range.
+
+## Decision Framework
+For each incoming message, evaluate:
+1. PRICE ANALYSIS: Is the offered price above or below fair? By how much?
+2. PARTNER TRUST: Check their reputation score. Below 0.3 = risky, avoid. Above 0.7 = reliable.
+3. BUDGET CHECK: Can you afford this? Never accept if price > your remaining budget.
+4. URGENCY ADJUSTMENT: If urgency > 0.7, accept up to 1.2x fair price. If urgency < 0.3, hold out for below 0.9x fair.
+5. COUNTER STRATEGY: When countering, move 30-50% toward their price from your ideal. Never counter at a price worse than your previous position.
+
+## Actions
+- ACCEPT: Price is within your acceptable range AND you can afford it AND partner is trustworthy.
+- COUNTER: Price is close but not quite right. Propose a specific price with reasoning.
+- REJECT: Price is far from acceptable, budget insufficient, or partner untrusted.
+
+## Response Format
+Respond with ONLY a JSON object (no markdown, no explanation outside JSON):
+{
+    "action": "accept" | "reject" | "counter",
+    "reasoning": "1-2 sentences explaining your price analysis and decision",
+    "price": <number — required for accept and counter>,
+    "resource": {"gpu_hours": <n>, "cpu_hours": <n>, "memory_gb_hours": <n>}
+}"""
+
+
+INITIATE_NAIVE_PROMPT = """You need compute resources from {target_id}.
+You need: {need}
+Your budget: {budget:.1f}
+Your urgency: {urgency:.2f}
+What max_price should you offer? Reply with just the number."""
+
+INITIATE_ENGINEERED_PROMPT = """You are initiating a purchase request for compute resources.
+
+Target seller: {target_id}
+Resources needed: {need}
+Your available budget: {budget:.1f} currency
+Your urgency: {urgency:.2f} (0=can wait forever, 1=need immediately)
+Your trust in this seller: {trust:.2f}
+
+Determine your opening max_price offer. Guidelines:
+- Fair price is approximately {fair_price:.1f} (1.0 per compute-unit)
+- If urgency > 0.7: offer up to 1.1x fair to close quickly
+- If urgency < 0.3: offer 0.9x fair to get a bargain
+- Never offer more than your budget
+- A reasonable opening is fair_price * (1.0 + 0.1 * urgency)
+
+Reply with just the number (the max_price you want to offer)."""
 
 
 MODELS = {
@@ -93,19 +141,22 @@ MODELS = {
 
 @dataclass
 class LLMStrategy:
-    """
-    Uses an LLM (OpenAI or Anthropic) to make negotiation decisions.
-    Falls back to a simple rule-based approach if no API is available.
-    """
     model: str | None = None
     temperature: float = 0.5
     max_tokens: int = 300
+    prompt_style: str = "engineered"  # "naive" or "engineered"
     negotiation_history: list[dict] = field(default_factory=list)
     _api_available: bool | None = None
     _provider: str | None = None
     api_calls: int = 0
     total_input_tokens: int = 0
     total_output_tokens: int = 0
+
+    @property
+    def _system_prompt(self) -> str:
+        if self.prompt_style == "naive":
+            return NAIVE_SYSTEM_PROMPT
+        return ENGINEERED_SYSTEM_PROMPT
 
     def _check_api(self) -> bool:
         if self._api_available is None:
@@ -132,11 +183,18 @@ class LLMStrategy:
             f"Your resources: {agent.resources}",
             f"Your urgency: {agent.urgency:.2f} (0=can wait, 1=desperate)",
             f"Your pending needs: {agent.pending_needs}",
+        ]
+        resource = msg.payload.get("resource", {})
+        fair = Resource.from_dict(resource).total_units() if resource else 0
+        if fair > 0 and self.prompt_style == "engineered":
+            lines.append(f"Fair market price for this resource: ~{fair:.1f} currency (1.0/unit)")
+
+        lines.extend([
             "",
             f"Incoming message from {msg.sender_id}:",
             f"  Type: {msg.msg_type.value}",
             f"  Payload: {json.dumps(msg.payload, indent=2)}",
-        ]
+        ])
         rep = agent.reputation_of(msg.sender_id)
         lines.append(f"\nYour trust in {msg.sender_id}: {rep:.2f} (0=untrusted, 1=fully trusted)")
         if agent.deals:
@@ -149,11 +207,9 @@ class LLMStrategy:
     def _call_llm(self, agent: "Agent", msg: Message) -> dict:
         context = self._build_context(agent, msg)
         self.api_calls += 1
-
         if self._provider == "openai":
             return self._call_openai(context)
-        else:
-            return self._call_anthropic(context)
+        return self._call_anthropic(context)
 
     def _call_openai(self, context: str) -> dict:
         client = _get_openai_client()
@@ -162,7 +218,7 @@ class LLMStrategy:
             max_tokens=self.max_tokens,
             temperature=self.temperature,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": self._system_prompt},
                 {"role": "user", "content": context},
             ],
         )
@@ -178,7 +234,7 @@ class LLMStrategy:
             model=self.model or "claude-haiku-4-5-20251001",
             max_tokens=self.max_tokens,
             temperature=self.temperature,
-            system=SYSTEM_PROMPT,
+            system=self._system_prompt,
             messages=[{"role": "user", "content": context}],
         )
         text = response.content[0].text.strip()
@@ -219,7 +275,7 @@ class LLMStrategy:
                 max_tokens=150,
                 temperature=self.temperature,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": self._system_prompt},
                     {"role": "user", "content": prompt},
                 ],
             )
@@ -233,7 +289,7 @@ class LLMStrategy:
                 model=self.model or "claude-haiku-4-5-20251001",
                 max_tokens=150,
                 temperature=self.temperature,
-                system=SYSTEM_PROMPT,
+                system=self._system_prompt,
                 messages=[{"role": "user", "content": prompt}],
             )
             if response.usage:
@@ -261,14 +317,18 @@ class LLMStrategy:
 
     def initiate(self, agent: "Agent", target_id: str, need: Resource) -> Message:
         if self._check_api():
-            prompt = (
-                f"You need to request compute from {target_id}.\n"
-                f"You need: {need}\n"
-                f"Your budget: {agent.budget:.1f}\n"
-                f"Your urgency: {agent.urgency:.2f}\n"
-                f"Your trust in {target_id}: {agent.reputation_of(target_id):.2f}\n"
-                f"What max_price should you offer? Reply with just the number."
-            )
+            fair_price = need.total_units()
+            if self.prompt_style == "engineered":
+                prompt = INITIATE_ENGINEERED_PROMPT.format(
+                    target_id=target_id, need=need, budget=agent.budget,
+                    urgency=agent.urgency, trust=agent.reputation_of(target_id),
+                    fair_price=fair_price,
+                )
+            else:
+                prompt = INITIATE_NAIVE_PROMPT.format(
+                    target_id=target_id, need=need, budget=agent.budget,
+                    urgency=agent.urgency,
+                )
             try:
                 text = self._call_llm_simple(prompt)
                 numbers = re.findall(r"[\d.]+", text)
@@ -276,9 +336,9 @@ class LLMStrategy:
                     max_price = float(numbers[0])
                     max_price = min(max_price, agent.budget)
                 else:
-                    max_price = need.total_units() * 1.1
+                    max_price = fair_price * (1.0 + 0.1 * agent.urgency)
             except Exception:
-                max_price = need.total_units() * 1.1
+                max_price = fair_price * (1.0 + 0.1 * agent.urgency)
         else:
             max_price = need.total_units() * 1.1
 

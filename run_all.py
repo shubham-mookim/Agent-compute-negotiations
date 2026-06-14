@@ -128,14 +128,15 @@ def run_exp5():
     print("=" * 60 + "\n")
 
     from experiments.exp5_llm_agents import (
-        check_api_available, llm_vs_llm,
-        llm_vs_rule_based, mixed_population,
+        check_api_available, prompt_comparison,
+        llm_vs_llm, llm_vs_rule_based, mixed_population,
     )
 
     api_ok = check_api_available()
-    num = 10 if api_ok else 5
-    llm_vs_llm(num_trials=num)
-    llm_vs_rule_based(num_trials=num)
+    n = 15 if api_ok else 5
+    prompt_comparison(num_trials=n)
+    llm_vs_llm(num_trials=n)
+    llm_vs_rule_based(num_trials=n)
     mixed_population(num_trials=3, rounds=20)
 
 

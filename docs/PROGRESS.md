@@ -466,60 +466,98 @@ request|*|price_fair|high_urg         → ACCEPT   (direct requests at fair = ac
 
 ### Experiment 5: LLM Agent Negotiations — Tier 3 Intelligence (GPT-4o-mini)
 
-**Setup:** OpenAI GPT-4o-mini as Tier 3 agent. 10 trials per test, temperature=0.5. Total API cost: $0.031 (330 calls).
+**Setup:** OpenAI GPT-4o-mini as Tier 3 agent. Two prompt variants tested. Cumulative API cost: $0.073 (497 calls).
 
-**Part 1 — LLM vs LLM:**
-- **100% deal rate** (10/10 trials) — LLMs always reach agreement
-- Average price: **8.30 ± 4.69** (fair price = 10.0) → **LLMs systematically underpay by 17%**
-- Bimodal pricing: 6.0 (6 trials), 15.0 (3 trials), 4.0 (2 trials) — no convergence to stable equilibrium
-- **All deals close in round 1** — LLMs accept immediately without counter-offering
-- Key finding: **LLMs are too eager to deal and don't negotiate hard**
+#### Run 1 — Naive Prompt (minimal instructions)
 
-**Part 2 — LLM vs Rule-Based:**
+**LLM vs LLM (naive):**
+- **100% deal rate** (10/10) — LLMs always agree
+- Average price: 8.30 ± 4.69 (fair = 10.0) → systematically underpay by 17%
+- Bimodal pricing (4, 6, or 15), all deals close in **round 1** — no negotiation
+- **LLMs are too eager and don't counter-offer**
 
-| Matchup | Deal Rate | Avg Price | vs Fair Price |
-|---------|-----------|-----------|---------------|
+**LLM vs Rule-Based (naive):**
+
+| Matchup | Deal Rate | Avg Price | vs Fair |
+|---------|-----------|-----------|---------|
 | LLM buying from Greedy | **100%** | 9.65 | -3.5% |
-| LLM selling to Greedy | 40% | 6.25 | -37.5% |
 | LLM buying from Fair | 100% | 10.00 | 0% |
-| LLM selling to Fair | 100% | 10.00 | 0% |
 | LLM buying from Adaptive | 100% | **16.75** | **+67.5%** |
+| LLM selling to Greedy | 40% | 6.25 | -37.5% |
+| LLM selling to Fair | 100% | 10.00 | 0% |
 | LLM selling to Adaptive | 100% | 10.00 | 0% |
 
-- **HEADLINE FINDING: LLM breaks the Greedy deadlock.** Rule-based agents get 0% deal rate with Greedy sellers. LLM buyers get 100% at near-fair prices. The LLM's natural-language reasoning lets it satisfy Greedy's demands in a way rigid rule-based strategies cannot.
-- **LLM massively overpays Adaptive** — 16.75 vs fair 10.0 (+67.5%). Adaptive agents learn from the LLM's generous initial offers and ratchet up prices. The LLM doesn't learn back within a single negotiation.
-- **LLM matches Fair perfectly** — 100% deal rate at exactly 10.0 both ways. Clean baseline.
-- **Asymmetric competence:** LLM is a stronger buyer than seller (100% vs 40% when facing Greedy)
+- **Naive LLM breaks the Greedy deadlock** — 100% deal rate where rule-based gets 0%
+- **Naive LLM massively overpays Adaptive** — +67.5% above fair
 
-**Part 3 — Mixed Population (2 LLM + 3 Rule-Based, 20 rounds):**
-- LLM wealth: 109.8 ± 19.7, Rule-based: 106.8 ± 5.2
-- No significant difference (p=0.72, d=0.23)
-- But **LLM has 3.8× higher variance** — much more unpredictable outcomes
-- LLM provider consistently gains (117.6 → 124.2 → 135.8) — **LLMs are better sellers**
-- LLM seeker consistently declines (103.5 → 95.0 → 82.5) — overpaying erodes budget over time
-- **Key finding: LLM shows seller-buyer asymmetry.** As sellers, LLMs extract good prices. As buyers, they overpay and bleed budget.
+#### Run 2 — Engineered Prompt (production-grade with pricing framework)
+
+**Prompt comparison (vs Fair seller):** Both naive and engineered achieve 100% deals at exactly 10.00. Against a predictable opponent, prompt quality makes no difference.
+
+**LLM vs LLM (engineered):**
+- **0% deal rate** (0/15) — complete reversal from naive
+- Engineered prompts make both sides too strategic; they can't agree on price
+- Both agents counter-offer and walk away — identical to Greedy-vs-Greedy deadlock in rule-based
+
+**LLM vs Rule-Based (engineered):**
+
+| Matchup | Deal Rate | Avg Price | vs Fair |
+|---------|-----------|-----------|---------|
+| LLM buying from Greedy | **0%** | N/A | N/A |
+| LLM buying from Fair | 100% | 10.00 | 0% |
+| LLM buying from Adaptive | 100% | **10.50** | **+5.0%** |
+| LLM selling (all opponents) | **0%** | N/A | N/A |
+
+- **Engineered prompt FIXES the overpaying problem**: +5.0% vs +67.5% with naive (13× improvement)
+- **But LOSES the deadlock-breaking ability**: 0% vs 100% against Greedy
+- **Sell-side completely deadlocks**: engineered prompt makes LLM too aggressive as seller
+
+**Mixed population (engineered, 20 rounds):**
+- LLM provider makes 0 deals across all trials (sell-side deadlock)
+- LLM seeker utility: 0.475–0.650, Adaptive seeker utility: 0.720–0.825
+- Adaptive outperforms LLM on utility metric
+- No significant overall difference (p=0.89)
+
+#### Key Findings from Prompt Comparison
+
+**NOVEL FINDING: Prompt engineering quality has a NON-LINEAR effect on negotiation:**
+
+| Prompt Style | LLM-LLM Deals | Greedy Deadlock Break | Adaptive Overpay | Sell-Side |
+|-------------|----------------|----------------------|------------------|-----------|
+| Naive | 100% | YES (100%) | +67.5% | Partial |
+| Engineered | 0% | NO (0%) | +5.0% | Dead (0%) |
+
+- Too little instruction → too eager, accepts bad deals
+- Too much instruction → too rigid, rejects good deals
+- The "optimal" agentic prompt lies between these extremes
+- This parallels the Greedy deadlock finding in rule-based agents: over-optimization of individual rationality leads to collective failure
 
 ---
 
-## 7. Key Research Insights (Updated — All Tiers Complete)
+## 7. Key Research Insights (Final)
 
-### All Answered Questions
+### Confirmed Findings
 
 1. **Detection threshold = ~30% cheat rate** with sharp phase transition (slope = 4.70)
 2. **Gossip protocols reduce detection gap but don't close it** (d=0.94 at 10%, but only 16% detection)
-3. **Adaptive cheaters paradoxically overshoot and get caught more** than fixed-rate cheaters
-4. **Arbitrage requires market inefficiency** — stable-priced markets have no arbitrage opportunity; volatile markets do (d=1.09)
+3. **Adaptive cheaters paradoxically overshoot** — adjusting cheat rate causes overdetection
+4. **Arbitrage requires market inefficiency** — stable markets: no profit; volatile markets: d=1.09
 5. **Coalition strategy > coalition size** — Greedy cartel underperforms Fair solo provider
 6. **Buyer coalitions can hurt members** — pooled demand exhausts budget faster
 7. **Free-riders detected in 10 rounds** with contribution-ratio monitoring
 8. **RL learns from scratch within 50 rounds** and finds middle-ground strategy
-9. **RL overfits to training market** — transferred policy underperforms native policy (p=0.037)
-10. **RL emergent behavior: exploits first-mover advantage** by rejecting counter-offers from high-rep agents expecting direct accepts
-11. **LLM breaks the Greedy deadlock** — 100% deal rate where rule-based gets 0% (the cross-tier crown jewel)
-12. **LLM is exploitable by Adaptive** — overpays by 67.5% because it doesn't learn within-session
-13. **LLM-LLM pricing is bimodal and unstable** — no convergence; high variance
-14. **LLM has seller-buyer asymmetry** — stronger as seller, weaker (overpays) as buyer
-15. **Intelligence tier ≠ wealth ranking** — T1-Greedy > T2-RL > T3-LLM(buyer). Higher intelligence doesn't guarantee better outcomes.
+9. **RL overfits to training market** — transferred policy underperforms native (p=0.037)
+10. **RL exploits first-mover advantage** — emergent rejection of high-rep counter-offers
+11. **Prompt engineering has non-linear effect on negotiation** — naive prompts: too eager (overpays 67.5%); engineered prompts: too rigid (0% deal rate LLM-vs-LLM). Optimal is in between.
+12. **Naive LLM breaks the Greedy deadlock** — 100% deal rate where rule-based gets 0%
+13. **Engineered LLM fixes overpaying** — reduces Adaptive exploitation from +67.5% to +5.0%
+14. **Over-optimization of individual rationality → collective failure** — engineered LLM-vs-LLM mirrors Greedy-vs-Greedy deadlock
+15. **Greedy bargains closest to Rubinstein equilibrium** — +9.8% vs +29.2% for others
+16. **Utility metric changes rankings** — Patient drops from #2 to #4; RL rises above Patient
+17. **Greedy deadlock is a phase transition at greed_factor=0.65** — robust, not knife-edge
+18. **Deal outcome depends on parameter compatibility** — same-parameter Greedy deadlocks; cross-parameter deals
+19. **All strategies overpay vs game-theoretic equilibrium** — market systematically above Rubinstein price
+20. **Fair strategy outcomes are parameter-insensitive** — tolerance has zero effect on price or deal rate
 
 ### Still Open Questions
 
