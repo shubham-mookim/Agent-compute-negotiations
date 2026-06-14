@@ -1,7 +1,8 @@
 # When Intelligence Tiers Invert: Emergent Market Dynamics in Decentralized Compute Negotiation
 
-**Authors:** Shubham Mookim
+**Author:** Shubham Mookim
 
+*Draft research writeup — findings summary, not yet a finished paper. See "Open Issues" at the end for what still needs hardening before submission anywhere.*
 
 ---
 
@@ -65,3 +66,23 @@ Future work includes bluffing experiments (can LLMs deceive about urgency?), mul
 5. AgenticPay (2025). Multi-agent LLM negotiation system. *arXiv:2602.06008*.
 6. Agent Workflow for Negotiation Games (2024). *arXiv:2411.05990*.
 7. x402-RAM (2025). Game-theoretic resource allocation for decentralized compute markets.
+
+---
+
+## Open Issues (What Still Needs Hardening)
+
+This is a candid list of weaknesses a reviewer would raise. None are fatal, but they must be addressed before this is a defensible paper rather than a promising prototype.
+
+1. **The wealth metric rewards non-participation.** "Wealth delta" goes up for agents that refuse to trade (Greedy, Patient hold their budget). This is the single biggest threat to the headline "tier inversion" finding — Greedy may "win" simply by abstaining, not by negotiating better. **Fix:** define a proper utility that credits *needs satisfied* (compute actually acquired at or below reservation price), then re-run the tier comparison. The inversion finding only survives if it holds under a needs-weighted metric.
+
+2. **Several "findings" may be implementation artifacts.** "Greedy and Patient deadlock at 0%", "all deals close in round 1" — these could be properties of how the five strategies were hand-coded, not general phenomena. **Fix:** parameter-sweep the strategy constants (greed_factor, patience, etc.) and show the qualitative findings are stable across the parameter space, not knife-edge.
+
+3. **LLM sample size is small and single-model.** 10 trials, one model (GPT-4o-mini), one temperature, one resource scenario. The 67.5% overpayment and the deadlock-breaking are striking but underpowered. **Fix:** 50+ trials, multiple scenarios, and at least one second model to show the effect isn't GPT-4o-mini-specific.
+
+4. **No theoretical baseline.** We never compare observed prices to the Rubinstein alternating-offers equilibrium or a Nash bargaining solution. Without it, "fair price = total units" is an assumption, not a benchmark. **Fix:** compute the game-theoretic equilibrium for the two-agent case and measure deviation per tier.
+
+5. **Abstract units, no external validity.** Resources are dimensionless; there is no grounding in real GPU pricing or real workloads. This caps the claims to "in simulation." **Fix:** either own the limitation explicitly in scope, or calibrate one experiment against real spot-market data (e.g., Akash/io.net pricing).
+
+6. **Reputation update rule is hand-tuned.** The 30% detection threshold depends on the specific reputation increment/decrement values. **Fix:** show the threshold's sensitivity to the update rule, or derive it analytically.
+
+**Bottom line:** Findings 1 (detection threshold) and 3 (LLM breaks deadlock) are the most defensible and novel. The tier-inversion (Finding 2) is the most exciting but the most fragile — it lives or dies on fixing the utility metric.

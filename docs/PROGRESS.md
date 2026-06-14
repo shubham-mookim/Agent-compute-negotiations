@@ -251,9 +251,9 @@ Rankings by average net worth over 20 trials:
 ### Phase F: Paper Writing (Planned)
 **Status: Not Started**
 
-- Target: AAMAS, AAAI, or JASSS
 - Working title: "Emergent Market Dynamics in Decentralized Compute Resource Negotiation Across Agent Intelligence Tiers"
 - Structure: problem formulation → model → experimental design → results → analysis → implications
+- Venue decision deferred — harden findings first (see Open Issues in docs/abstract.md)
 
 ---
 
@@ -553,11 +553,12 @@ request|*|price_fair|high_urg         → ACCEPT   (direct requests at fair = ac
 - All three intelligence tiers tested and compared
 - 9 experiments with statistical backing
 
-### Next: Phase G (Paper Writing)
-- Target: AAMAS 2026 (abstract due October 2026)
-- 2-page workshop paper first (AAMAS workshop on agent economies)
-- Then full 8-10 page conference paper
-- arXiv preprint immediately on completion
+### Next: Hardening Before Write-up
+- Fix the utility metric (wealth-delta currently rewards non-trading — undermines the tier-inversion headline)
+- Scale up LLM experiments (more trials, more scenarios, ideally more models)
+- Separate genuine phenomena from implementation artifacts
+- Validate against a theoretical baseline (Rubinstein equilibrium)
+- Venue decision deferred until findings are robust
 - Working title: "Emergent Market Dynamics in Decentralized Compute Negotiation: When Intelligence Tiers Invert"
 
 ### Optional Extensions

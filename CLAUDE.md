@@ -75,9 +75,7 @@ requirements.txt           # matplotlib, anthropic (when API key available)
 
 **Core question:** How do different agent intelligence tiers (rule-based, RL, LLM) affect negotiation outcomes, market efficiency, and stability in decentralized compute markets?
 
-**Target venues:** AAMAS, AAAI, JASSS
-
-**Related work to cite:** Rubinstein (1982), NegotiationArena (2024), AgenticPay (2025), Game-theoretic LLM (2024), x402-RAM, FIRE trust model. See docs/PROGRESS.md for full bibliography.
+**Related work:** Rubinstein (1982), NegotiationArena (2024), AgenticPay (2025), Game-theoretic LLM (2024), x402-RAM, FIRE trust model. See docs/PROGRESS.md for full bibliography.
 
 ## Running Experiments
 

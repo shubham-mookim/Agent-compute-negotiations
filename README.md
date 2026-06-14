@@ -86,8 +86,8 @@ Spot vs futures market comparison. In Fair-priced markets, futures add no effici
 
 ## What's Next
 
-- **LLM-powered experiments** with real Claude API (needs key)
-- **Coalition formation** — agents pooling resources, free-rider detection
 - **Reputation-aware adaptive cheater** — can it stay below detection threshold?
-- **Mixed-strategy markets** — introduce price volatility to test arbitrage viability
-- **Paper writing** — target AAMAS, AAAI, or JASSS
+- **Multi-round LLM with memory** — does cross-negotiation context fix the overpaying problem?
+- **Cross-model LLM comparison** — GPT vs Claude vs Gemini negotiation behavior
+- **Utility-based metrics** — measure needs-satisfied, not just wealth, to validate findings
+- **Scaling** — larger agent populations (20+) to test for emergent market phenomena
