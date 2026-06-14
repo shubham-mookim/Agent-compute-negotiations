@@ -1,0 +1,58 @@
+matplotlib not installed - skipping plots (pip install matplotlib)
+--- 100-Round Scarcity Simulation ---
+Seeker performance:
+  adaptive_seeker:
+    Deals made: 13
+    Total spent: 77.6
+    Resources acquired: 156.0
+    Avg cost/unit: 0.50
+  greedy_seeker:
+    Deals made: 7
+    Total spent: 47.0
+    Resources acquired: 84.0
+    Avg cost/unit: 0.56
+
+=== Simulation Summary (100 rounds) ===
+Total negotiations: 200
+Deals made: 20 (10% success rate)
+
+Agent states:
+  greedy_provider: budget=93.7, resources=6.0, deals=12
+    reputation: adaptive_seeker=1.00, greedy_seeker=1.00
+  fair_provider: budget=26.9, resources=148.0, deals=1
+    reputation: adaptive_seeker=0.60
+  patient_provider: budget=34.0, resources=66.0, deals=7
+    reputation: adaptive_seeker=1.00
+  adaptive_seeker: budget=22.4, resources=161.0, deals=13
+    reputation: fair_provider=0.60, greedy_provider=1.00, patient_provider=1.00
+  greedy_seeker: budget=33.0, resources=89.0, deals=7
+    reputation: greedy_provider=1.00
+
+=== Rush Hour Scenario ===
+
+Rounds 1-10: Normal operation (2 seekers)
+Rounds 11-20: RUSH HOUR (everyone needs compute)
+Rounds 21-30: Back to normal
+
+Phase: normal_1
+  Negotiations: 20, Deals: 14 (70% success)
+  Avg price/unit: 0.68
+
+Phase: rush
+  Negotiations: 50, Deals: 25 (50% success)
+  Avg price/unit: 0.72
+
+Phase: normal_2
+  Negotiations: 20, Deals: 8 (40% success)
+  Avg price/unit: 0.61
+
+=== Strategy Tournament (20 trials) ===
+
+Agent                   Avg Worth      Min      Max
+----------------------------------------------------
+fair_provider               173.3    169.7    175.0
+adaptive_seeker             142.0    122.0    159.1
+patient_provider            138.9    122.5    155.0
+greedy_seeker               113.8    104.5    121.2
+greedy_provider             112.1    107.6    117.1
+

@@ -1,0 +1,40 @@
+matplotlib not installed - skipping plots (pip install matplotlib)
+=== Message Trace: Fair vs Greedy ===
+
+  ->  request  {'resource': {'gpu_hours': 10, 'cpu_hours': 0.0, 'memory_gb_hours': 0.0}, 'max_price': 11.5, 'urgency': 0.7}
+  <-  counter  {'resource': {'gpu_hours': 10, 'cpu_hours': 0.0, 'memory_gb_hours': 0.0}, 'price': 13.0}
+  ->  counter  {'resource': {'gpu_hours': 10, 'cpu_hours': 0.0, 'memory_gb_hours': 0.0}, 'price': 11.5}
+  <-   reject  {'reason': 'too_expensive'}
+
+  Outcome: NO DEAL
+
+=== Strategy Matrix: Deal Success ===
+
+buyer \ seller      greedy      fair        patient     adaptive    
+--------------------------------------------------------------------
+greedy                    0%          0%          0%          0%    
+fair                      0%        100%          0%        100%    
+patient                   0%          0%          0%          0%    
+adaptive                  0%        100%          0%        100%    
+
+=== Convergence Test: Two Adaptive Agents ===
+
+Deals made: 59 / 100
+First 5 prices:  ['2.50', '2.50', '2.50', '2.50', '2.50']
+Last 5 prices:   ['4.27', '4.31', '4.35', '4.39', '4.44']
+Price range:     2.50 - 4.44
+Mean price:      3.35
+
+Early volatility (first 20):  0.2062
+Late volatility (last 20):    0.2320
+-> Price is NOT converging (still volatile)
+
+=== Simulation Summary (100 rounds) ===
+Total negotiations: 100
+Deals made: 59 (59% success rate)
+
+Agent states:
+  adaptive_buyer: budget=2.5, resources=295.0, deals=100
+    reputation: adaptive_seller=0.00
+  adaptive_seller: budget=207.5, resources=205.0, deals=59
+    reputation: adaptive_buyer=1.00

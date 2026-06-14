@@ -1,0 +1,45 @@
+
+============================================================
+  EXPERIMENT 7: PREDICTIVE NEGOTIATION & FUTURES
+============================================================
+
+=== Spot Market vs Futures Market ===
+
+Metric                                  Spot Market            Futures Market
+-----------------------------------------------------------------------------
+Avg Price/Unit                 1.042 ±0.014           1.041 ±0.021
+Deal Success Rate              11.8% ±0.3%           12.0% ±0.2%
+Contract Defaults                      N/A             0.0 ±0.3
+
+Price difference: t=0.447, p=6.55e-01
+Deal rate difference: t=-3.310, p=9.34e-04
+
+=== Demand Pattern Analysis ===
+
+  cyclic      : price=1.000±0.000, deals=22%, volatility=0.0000
+  bursty      : price=1.000±0.000, deals=35%, volatility=0.0000
+  trending    : price=1.000±0.000, deals=47%, volatility=0.0000
+  constant    : price=1.000±0.000, deals=25%, volatility=0.0000
+
+=== Arbitrage Experiment ===
+
+Arbitrageur profit:  -0.6909 ± 1.8488 (95% CI: [-1.0532, -0.3285], n=100)
+Normal seeker profit: 1.7316 ± 2.6619 (95% CI: [1.2098, 2.2533], n=100)
+Difference: t=-7.474, p=7.75e-14, d=-1.057
+Result: Significant difference but arbitrage is LESS profitable
+
+=== Volatile Market Arbitrage ===
+
+(Mixed Greedy + Fair providers — real price variation)
+
+Price volatility (std):   0.1045 ± 0.0179 (95% CI: [0.1010, 0.1080], n=100)
+Arbitrageur profit:       94.7013 ± 13.4250 (95% CI: [92.0700, 97.3326], n=100)
+Normal seeker profit:     80.1928 ± 17.7102 (95% CI: [76.7216, 83.6640], n=100)
+Difference: t=6.528, p=6.64e-11, d=0.923
+Result: Arbitrage IS significantly profitable in volatile market
+
+============================================================
+  ALL EXPERIMENTS COMPLETE
+============================================================
+
+Check logs/ for plots and data.

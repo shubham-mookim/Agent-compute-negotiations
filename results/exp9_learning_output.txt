@@ -1,0 +1,124 @@
+
+============================================================
+  EXPERIMENT 9: RL LEARNING AGENTS
+============================================================
+
+=== Part 1: RL Learning Curve ===
+
+   Round   Deals  Epsilon  Avg Reward  Q-States
+-----------------------------------------------
+       1       0    0.398      -0.050         2
+      50      43    0.350      -0.150        12
+     100      85    0.299       0.133        16
+     200     152    0.183      -0.057        17
+     500     358    0.089      -0.086        17
+    1000     682    0.050      -0.091        17
+
+Final Q-table entries: 17
+Final deals made: 682
+Final epsilon: 0.0500
+
+=== Part 1b: Convergence Test ===
+
+Early rewards (first 50):  -0.0797 ± 0.0130 (95% CI: [-0.0822, -0.0771], n=100)
+Late rewards (last 50):    -0.1017 ± 0.0145 (95% CI: [-0.1046, -0.0989], n=100)
+Welch's t=11.331, p=0.00e+00, Cohen's d=1.602
+Result: Significant change, but not an improvement
+
+=== Part 2: RL vs Rule-Based Strategies ===
+
+Strategy                 Wealth Δ      Std
+--------------------------------------------
+greedy            +48.5 ±0.4        3.2
+patient            +0.0 ±0.0        0.0
+rl                 -2.3 ±0.1        0.4
+adaptive          -10.3 ±0.4        2.5
+fair              -10.9 ±0.3        2.2
+
+Strategy                  Utility   Fulfill%
+----------------------------------------------
+greedy           0.4150 ±0.0002
+patient          0.3933 ±0.0000
+rl               0.3875 ±0.0001
+adaptive         0.3717 ±0.0007
+fair             0.3705 ±0.0006
+
+--- Pairwise vs RL (wealth) ---
+  rl < greedy      : t=-223.13, p=0.00e+00, d=-22.31 ***
+  rl < patient     : t=-74.16, p=0.00e+00, d=-7.42 ***
+  rl > adaptive    : t=44.13, p=0.00e+00, d=4.41 ***
+  rl > fair        : t=55.21, p=0.00e+00, d=5.52 ***
+
+--- Pairwise vs RL (utility) ---
+  rl < greedy      : t=-230.99, p=0.00e+00, d=-23.10 ***
+  rl < patient     : t=-125.56, p=0.00e+00, d=-12.56 ***
+  rl > adaptive    : t=44.06, p=0.00e+00, d=4.41 ***
+  rl > fair        : t=54.66, p=0.00e+00, d=5.47 ***
+
+=== Part 3: RL in Mixed Population ===
+
+Agent                    Wealth Δ
+----------------------------------
+greedy            +35.8 ±0.2
+adaptive          +12.0 ±1.0
+fair               +0.5 ±0.4
+rl                 +0.3 ±0.8
+patient            -0.6 ±0.2
+
+=== Part 4: Strategy Transfer ===
+
+Transferred (fair→greedy): 23.9225 ± 24.8455 (95% CI: [19.0528, 28.7922], n=100)
+Native (greedy from start): 29.5200 ± 10.1361 (95% CI: [27.5333, 31.5067], n=100)
+Welch's t=-2.086, p=3.70e-02, d=-0.295
+Result: Native RL SIGNIFICANTLY outperforms transferred — overfitting confirmed
+
+=== Part 5: Emergent Policy Inspection ===
+
+Learned policy (8 state-action pairs):
+
+  counter|high_rep|price_fair|high_urg                    → REJECT
+  counter|high_rep|price_high|high_urg                    → REJECT
+  counter|high_rep|price_low|high_urg                     → REJECT
+  counter|med_rep|price_fair|high_urg                     → ACCEPT
+  counter|med_rep|price_high|high_urg                     → REJECT
+  request|high_rep|price_fair|high_urg                    → ACCEPT
+  request|low_rep|price_fair|high_urg                     → ACCEPT
+  request|med_rep|price_fair|high_urg                     → ACCEPT
+
+Total Q-table entries: 17
+Deals made: 672
+Avg reward (last 50): -0.1020
+
+=== Part 6: Intelligence Tier Comparison ===
+
+  Pre-training RL agent (500 rounds)...
+Agent                  Tier                 Wealth Δ
+------------------------------------------------------
+T1-Greedy              Tier 1        +48.7 ±0.6
+T1-Patient             Tier 1         -0.9 ±0.2
+T2-RL(fresh)           Tier 2         -2.3 ±0.5
+T2-RL(pretrained)      Tier 2         -2.9 ±0.1
+T1-Fair                Tier 1         -5.1 ±0.3
+T1-Adaptive            Tier 1        -15.2 ±0.8
+
+Agent                  Tier                  Utility
+------------------------------------------------------
+T1-Greedy              Tier 1       0.4152 ±0.0003
+T2-RL(fresh)           Tier 2       0.3874 ±0.0010
+T2-RL(pretrained)      Tier 2       0.3867 ±0.0001
+T1-Patient             Tier 1       0.3861 ±0.0006
+T1-Fair                Tier 1       0.3821 ±0.0007
+T1-Adaptive            Tier 1       0.3621 ±0.0015
+
+  RANKING CHANGES under utility metric!
+    Wealth order:  T1-Greedy > T1-Patient > T2-RL(fresh) > T2-RL(pretrained) > T1-Fair > T1-Adaptive
+    Utility order: T1-Greedy > T2-RL(fresh) > T2-RL(pretrained) > T1-Patient > T1-Fair > T1-Adaptive
+
+  Wealth:  T2-RL vs T1-Greedy: t=-166.68, p=0.00e+00, d=-23.57
+  Utility: T2-RL vs T1-Greedy: t=-177.06, p=0.00e+00, d=-25.04
+
+============================================================
+  ALL EXPERIMENTS COMPLETE
+============================================================
+
+Check logs/ for plots and data.

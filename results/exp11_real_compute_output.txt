@@ -1,0 +1,53 @@
+============================================================
+  EXPERIMENT 11: REAL COMPUTE CONTENTION
+============================================================
+
+Host: 4 cores, using 3 real execution slots
+Calibrating workload to ~0.3s/job...
+  Base CPU work = 623,888 SHA-256 iterations
+
+--- Trial 0 (12 jobs, 4 urgent) ---
+  FIFO      makespan=1.81s  urgent_lat=1.26s  welfare=7.4  fairness=0.57
+  SJF       makespan=1.73s  urgent_lat=0.21s  welfare=25.9  fairness=0.40
+  Urgency   makespan=1.48s  urgent_lat=0.20s  welfare=24.6  fairness=0.31
+  Market    makespan=1.43s  urgent_lat=0.20s  welfare=25.9  fairness=0.30
+
+--- Trial 1 (12 jobs, 3 urgent) ---
+  FIFO      makespan=1.79s  urgent_lat=0.57s  welfare=12.6  fairness=0.40
+  SJF       makespan=1.60s  urgent_lat=0.12s  welfare=26.1  fairness=0.38
+  Urgency   makespan=1.58s  urgent_lat=0.13s  welfare=25.8  fairness=0.38
+  Market    makespan=1.83s  urgent_lat=0.12s  welfare=25.9  fairness=0.43
+
+--- Trial 2 (12 jobs, 4 urgent) ---
+  FIFO      makespan=1.39s  urgent_lat=0.65s  welfare=16.9  fairness=0.34
+  SJF       makespan=1.42s  urgent_lat=0.36s  welfare=24.5  fairness=0.32
+  Urgency   makespan=1.34s  urgent_lat=0.20s  welfare=26.6  fairness=0.28
+  Market    makespan=1.39s  urgent_lat=0.42s  welfare=15.4  fairness=0.26
+
+============================================================
+  SUMMARY (averaged across trials)
+============================================================
+
+Regime      Makespan  UrgentLat   Welfare  Fairness  MeanComp
+------------------------------------------------------------
+FIFO           1.67s      0.83s      12.3      0.44     0.95s
+SJF            1.58s      0.23s      25.5      0.36     0.75s
+Urgency        1.47s      0.18s      25.7      0.32     0.69s
+Market         1.55s      0.25s      22.4      0.33     0.72s
+
+--- Analysis ---
+  Best urgent-job latency: Urgency
+  Best social welfare:     Urgency
+  Best makespan:           Urgency
+
+  Market vs FIFO urgent latency: 0.25s vs 0.83s (-70%)
+  Market vs Urgency welfare: 22.4 vs 25.7 (-13%)
+
+  Detailed per-job results dumped to: /home/user/try/results/exp11_real_compute_detail.json
+  Flat CSV dumped to: /home/user/try/results/exp11_real_compute_jobs.csv
+
+============================================================
+  ALL EXPERIMENTS COMPLETE
+============================================================
+
+Check logs/ for plots and data.

@@ -1,0 +1,22 @@
+matplotlib not installed - skipping plots (pip install matplotlib)
+--- Always-Cheating Mallory ---
+Cheater reputation over time:
+  Early (1-10): rep=0.296, deals=9
+  Mid (25-35): rep=0.000, deals=4
+  Late (50-60): rep=0.000, deals=3
+Cheating incidents: 35
+Final state: budget=220.0, resources=Resource(gpu=105.0h)
+
+Honest agents view of Mallory:
+  honest_alice: 0.000
+  honest_bob: 0.000
+  honest_carol: 0.000
+  honest_dave: 0.000
+  seeker_eve: 0.000
+
+--- Subtle Mallory (5% cheat rate) ---
+  Early: rep=0.665, deals=18
+  Mid: rep=0.951, deals=19
+  Late: rep=0.999, deals=20
+  Always cheat wealth: 325.0
+  5% cheat wealth:    149.8

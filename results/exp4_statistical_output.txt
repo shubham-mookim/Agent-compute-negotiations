@@ -1,0 +1,83 @@
+
+============================================================
+  EXPERIMENT 4: STATISTICAL RIGOR
+============================================================
+
+=== Strategy Matrix (1000 trials per pair) ===
+
+buyer \ seller  greedy              fair                patient             adaptive            
+------------------------------------------------------------------------------------------------
+greedy             0% ±0.0%          0% ±0.0%          0% ±0.0%          0% ±0.0%       
+fair               0% ±0.0%        100% ±0.0%          0% ±0.0%        100% ±0.0%       
+patient            0% ±0.0%          0% ±0.0%          0% ±0.0%          0% ±0.0%       
+adaptive           0% ±0.0%        100% ±0.0%          0% ±0.0%        100% ±0.0%       
+
+--- Price Analysis (where deals occur) ---
+
+  fair vs fair:
+    Price: 10.0000 ± 0.0000 (95% CI: [10.0000, 10.0000], n=1000)
+    Rounds to deal: 1.0000 ± 0.0000 (95% CI: [1.0000, 1.0000], n=1000)
+  fair vs adaptive:
+    Price: 10.7500 ± 0.0000 (95% CI: [10.7500, 10.7500], n=1000)
+    Rounds to deal: 1.0000 ± 0.0000 (95% CI: [1.0000, 1.0000], n=1000)
+  adaptive vs fair:
+    Price: 10.0000 ± 0.0000 (95% CI: [10.0000, 10.0000], n=1000)
+    Rounds to deal: 1.0000 ± 0.0000 (95% CI: [1.0000, 1.0000], n=1000)
+  adaptive vs adaptive:
+    Price: 10.5000 ± 0.0000 (95% CI: [10.5000, 10.5000], n=1000)
+    Rounds to deal: 1.0000 ± 0.0000 (95% CI: [1.0000, 1.0000], n=1000)
+
+=== Price Convergence Test (200 trials) ===
+
+Early volatility:  0.2062 ± 0.0000 (95% CI: [0.2062, 0.2062], n=200)
+Late volatility:   0.2320 ± 0.0000 (95% CI: [0.2320, 0.2320], n=200)
+Welch's t-test:    t=-396580363132846.688, p=0.00e+00
+Effect size (d):   -39658036313284.664
+Final prices:      4.4385 ± 0.0000 (95% CI: [4.4385, 4.4385], n=200)
+
+Result: STRONG evidence that prices converge (p < 0.001)
+
+=== Strategy Tournament (1000 trials) ===
+
+Agent                      Mean      Std               95% CI
+--------------------------------------------------------------
+fair_provider             173.5      1.5 [  173.4,   173.6]
+adaptive_seeker           144.7     14.9 [  143.8,   145.7]
+patient_provider          135.5     13.3 [  134.6,   136.3]
+greedy_seeker             114.6      6.5 [  114.2,   115.0]
+greedy_provider           111.8      2.3 [  111.6,   111.9]
+
+--- Pairwise Significance Tests ---
+
+  fair_provider vs adaptive_seeker: t=60.59, p=0.00e+00, d=2.71 ***
+  fair_provider vs patient_provider: t=89.60, p=0.00e+00, d=4.01 ***
+  fair_provider vs greedy_seeker: t=281.01, p=0.00e+00, d=12.57 ***
+  fair_provider vs greedy_provider: t=715.70, p=0.00e+00, d=32.01 ***
+  adaptive_seeker vs patient_provider: t=14.65, p=0.00e+00, d=0.66 ***
+  adaptive_seeker vs greedy_seeker: t=58.73, p=0.00e+00, d=2.63 ***
+  adaptive_seeker vs greedy_provider: t=69.10, p=0.00e+00, d=3.09 ***
+  patient_provider vs greedy_seeker: t=44.68, p=0.00e+00, d=2.00 ***
+  patient_provider vs greedy_provider: t=55.46, p=0.00e+00, d=2.48 ***
+  greedy_seeker vs greedy_provider: t=12.87, p=0.00e+00, d=0.58 ***
+
+--- Resource Inequality (Gini Coefficient) ---
+
+  Gini coefficient: 0.0974 ± 0.0076 (95% CI: [0.0967, 0.0981], n=500)
+
+=== Cheater Detection (500 trials) ===
+
+Cheat Rate  Detected?            Final Rep         Cheater Wealth        Incidents
+----------------------------------------------------------------------------------
+       1%        0%   0.941 [0.933,0.948]   145.5 [145.1,145.8]   0.5 [0.5,0.6]
+       5%        0%   0.883 [0.874,0.893]   157.2 [156.4,158.0]   2.8 [2.7,3.0]
+      10%        0%   0.792 [0.781,0.804]   171.3 [170.2,172.3]   5.5 [5.3,5.7]
+      20%        5%   0.570 [0.555,0.585]   196.1 [194.8,197.4]  10.2 [9.9,10.4]
+      30%       39%   0.348 [0.335,0.362]   216.5 [215.2,217.8]  14.0 [13.7,14.2]
+      50%       97%   0.109 [0.102,0.116]   246.6 [245.1,248.1]  19.6 [19.3,19.9]
+     100%      100%   0.001 [0.000,0.001]   310.3 [307.7,312.8]  32.1 [31.5,32.6]
+
+============================================================
+  ALL EXPERIMENTS COMPLETE
+============================================================
+
+Check logs/ for plots and data.
