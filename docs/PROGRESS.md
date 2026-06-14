@@ -577,9 +577,55 @@ urgency to. This reframes the entire project's thesis honestly: we're not
 claiming negotiation is better; we're mapping *when* it's the only option and
 what it costs.
 
-**Detailed outputs dumped:** `logs/exp11_real_compute_detail.json` (full per-job
+**Detailed outputs dumped:** `results/exp11_real_compute_detail.json` (full per-job
 records with real PIDs, CPU-seconds, peak memory) and
-`logs/exp11_real_compute_jobs.csv` (flat per-job rows for analysis).
+`results/exp11_real_compute_jobs.csv` (flat per-job rows for analysis).
+
+---
+
+### Experiment 12: LLM Agents Bidding for REAL Compute (the full integration)
+
+The capstone: real GPT-4o-mini agents reason about their own job and bid for
+REAL execution slots running REAL CPU/memory work. Each agent gets one LLM call
+to decide a 0–100 priority bid, reasoning about urgency, job size (slot-blocking),
+and budget. Allocation orders by bid; jobs then actually run under the real slot pool.
+
+**Setup:** 4-core host, 3 slots, 12 jobs, 3 trials. Hard call-budget guard (max 60).
+**Actual cost: $0.0014** (36 calls, 8867 in / 36 out tokens).
+
+**Results:**
+
+| Regime | Makespan | Urgent Latency | Welfare | Fairness |
+|--------|----------|----------------|---------|----------|
+| FIFO | 1.62s | 0.69s | 13.5 | 0.39 |
+| **Urgency (central)** | 1.48s | **0.18s** | **25.3** | 0.33 |
+| Market (formula) | 1.60s | 0.28s | 20.7 | 0.34 |
+| **LLM (Tier 3)** | **1.47s** | **0.18s** | 25.0 | **0.32** |
+
+**Key findings:**
+
+1. **The LLM agent reaches near-optimal allocation WITHOUT being told the rule.**
+   LLM welfare 25.0 ≈ centralized Urgency 25.3 (−1%, a tie). It reconstructed good
+   scheduling policy purely by reasoning about its own job.
+2. **Emergent correct scheduling intuition.** Inspecting the bids: the LLM bid HIGH
+   for short-urgent jobs (79, 88, 98) and LOW for long-batch jobs (1, 5, 10). It
+   independently learned to prioritize urgent work AND deprioritize slot-blocking
+   big jobs — the SJF + urgency intuition that classical schedulers encode.
+3. **LLM beats the mechanical market formula** (welfare 25.0 vs 20.7). Natural-language
+   reasoning about job context outperforms a rigid urgency×budget bid because it
+   accounts for slot-blocking and doesn't let high-budget low-urgency jobs win.
+4. **LLM ties for best makespan** (1.47s) and best fairness (0.32).
+5. **It costs almost nothing** — $0.0014 for the whole experiment.
+
+**Why this matters:** This is the strongest bridge from the abstract simulation to
+reality. An LLM agent, given only its own local job context and no global scheduling
+rule, makes bids that produce allocation as good as a central optimizer — and better
+than a mechanical decentralized formula. For real multi-party compute markets (where
+no central authority exists), LLM-driven agents are a viable allocation mechanism that
+recovers most of the efficiency a central scheduler would provide.
+
+**Detailed outputs:** `results/exp12_llm_real_compute_detail.json` (per-job records,
+LLM bids, exact cost).
 
 ---
 

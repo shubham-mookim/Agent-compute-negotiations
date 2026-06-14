@@ -268,6 +268,11 @@ def run_exp11():
     run_real_compute(n_jobs=12, trials=3, target_job_seconds=0.3)
 
 
+def run_exp12():
+    from experiments.exp12_llm_real_compute import run_llm_real_compute
+    run_llm_real_compute(n_jobs=12, trials=3, max_calls=60)
+
+
 def main():
     Path("logs").mkdir(exist_ok=True)
 
@@ -283,6 +288,7 @@ def main():
         "9": run_exp9,
         "10": run_exp10,
         "11": run_exp11,
+        "12": run_exp12,
     }
 
     if len(sys.argv) > 1:

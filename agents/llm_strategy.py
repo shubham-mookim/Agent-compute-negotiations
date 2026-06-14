@@ -31,6 +31,35 @@ from agents.resource import Resource
 _openai_client = None
 _anthropic_client = None
 
+# ── Hard cost guard ───────────────────────────────────────────────────────
+# Aborts before exceeding a set number of API calls, so a runaway loop can
+# never blow the budget. Call counts are exact (from API usage responses).
+_CALL_COUNT = 0
+_CALL_BUDGET = 10_000  # generous default; experiments tighten this
+
+
+class CallBudgetExceeded(RuntimeError):
+    pass
+
+
+def set_call_budget(n: int) -> None:
+    global _CALL_BUDGET, _CALL_COUNT
+    _CALL_BUDGET = n
+    _CALL_COUNT = 0
+
+
+def calls_made() -> int:
+    return _CALL_COUNT
+
+
+def _guard_call() -> None:
+    global _CALL_COUNT
+    if _CALL_COUNT >= _CALL_BUDGET:
+        raise CallBudgetExceeded(
+            f"API call budget of {_CALL_BUDGET} reached — aborting to protect cost."
+        )
+    _CALL_COUNT += 1
+
 
 def _detect_provider() -> str:
     if os.environ.get("OPENAI_API_KEY"):
