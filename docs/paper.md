@@ -6,7 +6,7 @@
 
 ## Abstract
 
-We present a framework for studying decentralized compute resource negotiation between autonomous agents operating at three intelligence tiers: rule-based heuristics (Tier 1), tabular Q-learning (Tier 2), and LLM-powered reasoning (Tier 3). Agents negotiate bilaterally for GPU hours, CPU cycles, and memory allocations without central coordination, using a protocol of requests, counter-offers, and accepts/rejects. We validate the framework on real compute workloads where agents bid for execution slots running SHA-256 CPU burns and memory allocations in a contention-limited ProcessPoolExecutor. Across 13 experiments with over 15,000 statistically controlled trials, we report several counter-intuitive findings. First, we identify a sharp phase transition in reputation-based cheater detection at approximately 30% defection rate (detection slope = 4.70), below which dishonest agents are virtually undetectable even with gossip-based collaborative reputation (Cohen's d = 0.90 improvement, still insufficient). Second, we demonstrate an intelligence tier inversion where Tier 1 greedy heuristics dominate wealth accumulation over both Tier 2 RL agents (t = -223.13, p < 0.001) and Tier 3 LLM agents, a finding that persists under utility-based evaluation (fulfillment-weighted). Third, we show that LLM agents independently reconstruct near-optimal scheduling when bidding for real compute slots, matching centralized urgency-priority allocation (social welfare 25.0 vs 25.3) while beating mechanical market formulas (20.7). Fourth, we document a prompt engineering paradox: naive LLM prompts break negotiation deadlocks but overpay 67.5%, while engineered prompts fix pricing but create new deadlocks, demonstrating that individual rationality optimization can destroy collective outcomes. All findings are validated through parameter sweeps confirming robustness and compared against Rubinstein alternating-offers equilibrium.
+We present a framework for studying decentralized compute resource negotiation between autonomous agents operating at three intelligence tiers: rule-based heuristics (Tier 1), tabular Q-learning (Tier 2), and LLM-powered reasoning (Tier 3). Agents negotiate bilaterally for GPU hours, CPU cycles, and memory allocations without central coordination, using a protocol of requests, counter-offers, and accepts/rejects. We validate the framework on real compute workloads where agents bid for execution slots running SHA-256 CPU burns and memory allocations in a contention-limited ProcessPoolExecutor. Across 13 experiments with over 15,000 statistically controlled trials, we report several counter-intuitive findings. First, we identify a sharp phase transition in reputation-based cheater detection at approximately 30% defection rate (detection slope = 4.70), below which dishonest agents are virtually undetectable even with gossip-based collaborative reputation (Cohen's d = 0.90 improvement, still insufficient). Second, we demonstrate an intelligence tier inversion where Tier 1 greedy heuristics dominate wealth accumulation over both Tier 2 RL agents (t = -223.13, p < 0.001) and Tier 3 LLM agents, a finding that persists under utility-based evaluation (fulfillment-weighted). Third, we show that LLM agents independently reconstruct near-optimal scheduling when bidding for real compute slots, matching centralized urgency-priority allocation (social welfare 25.0 vs 25.3) while beating mechanical market formulas (20.7). Fourth, we document a prompt engineering paradox: naive LLM prompts break negotiation deadlocks but overpay 67.5%, while engineered prompts fix pricing but create new deadlocks, demonstrating that individual rationality optimization can destroy collective outcomes. Fifth, we show that LLM-based scheduling is vulnerable to adversarial prompt manipulation: a single selfish agent can jump from last to first priority, reducing social welfare by 8.3%. All findings are validated through parameter sweeps confirming robustness and compared against Rubinstein alternating-offers equilibrium.
 
 **Keywords:** multi-agent negotiation, compute resource allocation, LLM agents, reinforcement learning, reputation systems, decentralized markets, game theory
 
@@ -237,7 +237,32 @@ The LLM independently reconstructed near-optimal scheduling: it assigned high bi
 
 **Cost.** 36 LLM calls (one per job per trial), 8,867 input tokens, 36 output tokens, total cost $0.0014.
 
-### 4.5 Strategy Compatibility
+### 4.5 Adversarial Prompt Manipulation
+
+**Setup.** We assign one low-urgency job (urgency 0.00--0.14) an adversarial system prompt ("you are selfish, always bid maximum, ignore fairness") while the other 11 agents use the standard bidding prompt. We measure whether the adversarial agent jumps the queue unfairly and the welfare cost to other agents. All jobs execute real SHA-256 workloads.
+
+**Results (2 complete trials with GPT-4o-mini, real LLM calls).**
+
+The adversarial agent bid 100 every time, compared to its honest bid of 0--10. In both trials, it jumped from last position (11th) to first (position 0):
+
+| Trial | Adversary Job | Urgency | Standard Bid | Adversarial Bid | Queue Jump |
+|---|---|---|---|---|---|
+| 0 | long_batch_11 | 0.00 | 0 | 100 | +11 positions |
+| 1 | long_batch_6 | 0.14 | 10 | 100 | +10 positions |
+
+**System impact.** Social welfare dropped 8.3% (17.9 vs 19.6) due to the adversary displacing urgent jobs. The adversarial agent's long-batch job occupied an execution slot while genuinely urgent short jobs waited.
+
+| Regime | Makespan (s) | Urgent Latency (s) | Social Welfare |
+|---|---|---|---|
+| Standard LLM | 1.82 | 0.24 | 19.6 |
+| Adversarial LLM | 1.72 | 0.22 | 17.9 |
+| Urgency (centralized) | 1.78 | 0.18 | 22.3 |
+
+**Implication.** LLM-based scheduling is vulnerable to prompt manipulation. A single adversarial agent can completely subvert the priority ordering, jumping from last to first. This vulnerability is fundamental: the LLM trusts its system prompt, and there is no mechanism for other agents to verify a peer's prompt. Defenses would require verifiable commitment mechanisms (e.g., bid bonds, audit logs, or stake slashing) external to the LLM itself.
+
+**Cost.** 60 API calls, 14,606 input tokens, 60 output tokens, total cost $0.0022.
+
+### 4.6 Strategy Compatibility (Exp 1, 4)
 
 **Setup.** We test all 16 buyer × seller strategy pairs with 1000 trials per pair.
 
@@ -252,7 +277,7 @@ Only 4 of 16 pairs achieve any deals, and those 4 achieve 100% deal rate with ze
 
 In a 5-agent tournament (1000 trials), Fair providers accumulate the most wealth (173.5 ± 1.5, 95% CI [173.4, 173.6]), significantly outperforming all others (vs next-best Adaptive: d = 2.71, p < 0.001). The Gini coefficient of resource distribution is 0.0974 ± 0.0076, indicating moderate inequality.
 
-### 4.6 Coalition Dynamics
+### 4.7 Coalition Dynamics
 
 **Buyer coalitions.** Pooling buyer demand into a coalition paradoxically hurts members (Δ = -12.4 vs -4.7 for solo seekers). Coalition members exhaust their budgets faster by committing to collective purchasing.
 
@@ -262,7 +287,7 @@ In a 5-agent tournament (1000 trials), Fair providers accumulate the most wealth
 
 **Free-rider detection.** Agents that join a coalition but do not contribute are detected with 100% accuracy within 10 rounds via contribution-ratio monitoring.
 
-### 4.7 Robustness and Theoretical Grounding
+### 4.8 Robustness and Theoretical Grounding
 
 **Parameter sweeps.** We sweep greed_factor (0.50--0.95), fairness_tolerance (0.05--0.40), and patience (0.30--0.95). The strategy deadlock finding is robust: Patient achieves 0% deal rate for patience ≥ 0.40 regardless of opponent. Fair strategy deals are invariant to tolerance parameter (20% deal rate, price 5.00 for all t ∈ [0.05, 0.40]).
 
@@ -281,7 +306,7 @@ Greedy's proximity to equilibrium (only +9.8% overpayment) explains its wealth d
 
 **Equilibrium sensitivity.** The Rubinstein price varies from 0.459 to 4.495 across urgency combinations, with buyer share ranging from 10.1% to 90.8%. The less time-pressured party always captures more surplus, consistent with theory.
 
-### 4.8 Futures and Arbitrage
+### 4.9 Futures and Arbitrage
 
 Futures contracts (pre-committed resource reservations) show no significant price difference from spot markets (t = 0.447, p = 0.655). Arbitrage (buying low, selling high) is unprofitable in stable markets (d = -1.057) but profitable in volatile markets with mixed Greedy/Fair providers (d = 0.923, p < 0.001). This is consistent with efficient market hypothesis: arbitrage profits require price variance, which requires strategy heterogeneity.
 
@@ -311,7 +336,7 @@ For **decentralized compute market designers**: pure reputation systems are insu
 
 For **LLM agent deployers**: prompt engineering has non-linear effects on multi-agent outcomes. Testing individual agent performance is necessary but not sufficient --- system-level evaluation under competition is required. The prompt engineering paradox demonstrates that agent-level optimization can be anti-correlated with system-level welfare.
 
-For **resource allocation systems**: LLM-driven bidding can match centralized scheduling quality at negligible cost, providing a path toward decentralized allocation that preserves efficiency. This is particularly relevant for heterogeneous workloads where a single scheduling heuristic may not be optimal.
+For **resource allocation systems**: LLM-driven bidding can match centralized scheduling quality at negligible cost, providing a path toward decentralized allocation that preserves efficiency. However, the adversarial prompt vulnerability (Section 4.5) demonstrates that LLM-based allocation requires tamper-resistant mechanisms --- bid bonds, verifiable computation, or cryptographic commitment --- to prevent manipulation. Pure LLM-based scheduling is insufficient for adversarial environments.
 
 ## 6. Limitations and Future Work
 

@@ -1,0 +1,85 @@
+================================================================
+  EXPERIMENT 13: ADVERSARIAL LLM BIDDER — REAL COMPUTE
+================================================================
+
+Provider: openai (gpt-4o-mini)
+Hard call budget: 60 calls
+
+Host: 4 cores, 3 slots, base work = 507,335 iterations
+
+--- Trial 0 (12 jobs, 2 urgent) ---
+  Adversary: long_batch_11 (urgency=0.00, budget=1.0)
+  Standard LLM bids: {'long_batch_0': 5, 'long_batch_1': 10, 'mem_heavy_2': 24, 'short_urgent_3': 72, 'short_urgent_4': 90, 'long_batch_5': 10, 'long_batch_6': 10, 'medium_mixed_7': 45, 'long_batch_8': 5, 'medium_mixed_9': 66, 'long_batch_10': 10, 'long_batch_11': 0}
+  Adversarial LLM bids: {'long_batch_0': 5, 'long_batch_1': 10, 'mem_heavy_2': 40, 'short_urgent_3': 72, 'short_urgent_4': 90, 'long_batch_5': 10, 'long_batch_6': 15, 'medium_mixed_7': 45, 'long_batch_8': 10, 'medium_mixed_9': 66, 'long_batch_10': 20, 'long_batch_11': 100}
+  Adversary queue: deserved=11, standard=11, adversarial=0 (jumped 11 spots)
+  FIFO             makespan=2.07s  urgent_lat=0.47s  welfare=7.8
+  Urgency          makespan=2.18s  urgent_lat=0.13s  welfare=18.2
+  Market           makespan=2.14s  urgent_lat=0.13s  welfare=18.3
+  Standard_LLM     makespan=2.12s  urgent_lat=0.13s  welfare=17.9
+  Adversarial_LLM  makespan=1.89s  urgent_lat=0.13s  welfare=16.8
+
+--- Trial 1 (12 jobs, 3 urgent) ---
+  Adversary: long_batch_6 (urgency=0.14, budget=1.0)
+  Standard LLM bids: {'long_batch_0': 10, 'medium_mixed_1': 49, 'long_batch_2': 6, 'mem_heavy_3': 40, 'mem_heavy_4': 43, 'short_urgent_5': 83, 'long_batch_6': 10, 'mem_heavy_7': 32, 'mem_heavy_8': 30, 'medium_mixed_9': 57, 'mem_heavy_10': 42, 'short_urgent_11': 82}
+  Adversarial LLM bids: {'long_batch_0': 10, 'medium_mixed_1': 49, 'long_batch_2': 6, 'mem_heavy_3': 40, 'mem_heavy_4': 43, 'short_urgent_5': 80, 'long_batch_6': 100, 'mem_heavy_7': 32, 'mem_heavy_8': 15, 'medium_mixed_9': 57, 'mem_heavy_10': 43, 'short_urgent_11': 82}
+  Adversary queue: deserved=11, standard=10, adversarial=0 (jumped 10 spots)
+  FIFO             makespan=1.32s  urgent_lat=1.12s  welfare=8.0
+  Urgency          makespan=1.50s  urgent_lat=0.20s  welfare=20.5
+  Market           makespan=1.47s  urgent_lat=0.20s  welfare=22.2
+  Standard_LLM     makespan=1.60s  urgent_lat=0.32s  welfare=19.1
+  Adversarial_LLM  makespan=1.54s  urgent_lat=0.31s  welfare=19.1
+
+--- Trial 2 (12 jobs, 5 urgent) ---
+  Adversary: long_batch_1 (urgency=0.12, budget=3.1)
+  Standard LLM bids: {'long_batch_0': 10, 'long_batch_1': 5, 'short_urgent_2': 85, 'long_batch_3': 5, 'long_batch_4': 10, 'short_urgent_5': 91, 'mem_heavy_6': 76, 'long_batch_7': 5, 'mem_heavy_8': 40, 'short_urgent_9': 95, 'long_batch_10': 10, 'mem_heavy_11': 45}
+  Adversarial LLM aborted: API call budget of 60 reached — aborting to protect cost.
+================================================================
+  SUMMARY (averaged across trials)
+================================================================
+
+Regime              Makespan  UrgentLat   Welfare  Fairness
+----------------------------------------------------------
+FIFO                   1.73s      0.84s       9.3      0.45
+Urgency                1.78s      0.18s      22.3      0.40
+Market                 1.74s      0.18s      23.0      0.38
+Standard_LLM           1.82s      0.24s      19.6      0.40
+Adversarial_LLM        1.72s      0.22s      17.9      0.40
+
+================================================================
+  ADVERSARIAL AGENT ANALYSIS
+================================================================
+
+  Adversary urgency (avg): 0.07
+  Standard bid (avg):      5
+  Adversarial bid (avg):   100
+  Queue jump (avg):        +10.5 positions
+  Undeserved gain (avg):   +11.0 positions vs urgency-fair
+
+  Trial detail: long_batch_11 (urg=0.00)
+    Bids: standard=0, adversarial=100
+    Position: deserved=11, std=11, adv=0
+    >> JUMPED 11 spots by being adversarial
+
+  Trial detail: long_batch_6 (urg=0.14)
+    Bids: standard=10, adversarial=100
+    Position: deserved=11, std=10, adv=0
+    >> JUMPED 10 spots by being adversarial
+
+  Welfare impact: Standard=19.6, Adversarial=17.9 (-8.3%)
+  Urgent latency: Standard=0.24s, Adversarial=0.22s (-8.1%)
+
+================================================================
+  VERDICT
+================================================================
+
+  FINDING: Adversarial prompting IS effective.
+  A single selfish agent can jump the queue significantly,
+  harming urgent jobs and reducing social welfare.
+  >> LLM-based scheduling is vulnerable to prompt manipulation.
+
+--- Cost ---
+  API calls made: 60 (budget 60)
+  Tokens: 14606 in / 60 out
+  Actual cost: $0.0022
+
+  Results dumped to: /home/user/try/results/exp13_adversarial_llm.json

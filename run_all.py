@@ -273,6 +273,11 @@ def run_exp12():
     run_llm_real_compute(n_jobs=12, trials=3, max_calls=60)
 
 
+def run_exp13():
+    from experiments.exp13_adversarial_llm import run_adversarial_test
+    run_adversarial_test(n_jobs=12, trials=3, max_calls=60)
+
+
 def main():
     Path("logs").mkdir(exist_ok=True)
 
@@ -289,6 +294,7 @@ def main():
         "10": run_exp10,
         "11": run_exp11,
         "12": run_exp12,
+        "13": run_exp13,
     }
 
     if len(sys.argv) > 1:

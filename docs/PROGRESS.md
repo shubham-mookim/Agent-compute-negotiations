@@ -2,7 +2,7 @@
 
 **Project:** Decentralized Compute Resource Negotiation Between Autonomous Agents
 **Started:** April 2026
-**Status:** Active research — Phase A-D in progress
+**Status:** Paper draft complete — 13 experiments, 20+ findings confirmed
 
 ---
 

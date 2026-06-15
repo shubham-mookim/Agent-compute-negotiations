@@ -1,0 +1,417 @@
+{
+  "config": {
+    "n_jobs": 12,
+    "slots": 3,
+    "trials": 3,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "base_iters": 507335,
+    "max_calls": 60
+  },
+  "summary": {
+    "FIFO": {
+      "makespan_s": 1.732,
+      "urgent_latency_s": 0.8400000000000001,
+      "social_welfare": 9.333333333333332,
+      "fairness_wait_std": 0.44866666666666666
+    },
+    "Urgency": {
+      "makespan_s": 1.7773333333333334,
+      "urgent_latency_s": 0.18466666666666667,
+      "social_welfare": 22.346666666666668,
+      "fairness_wait_std": 0.4023333333333333
+    },
+    "Market": {
+      "makespan_s": 1.7406666666666668,
+      "urgent_latency_s": 0.18433333333333332,
+      "social_welfare": 23.016666666666666,
+      "fairness_wait_std": 0.38366666666666666
+    },
+    "Standard_LLM": {
+      "makespan_s": 1.82,
+      "urgent_latency_s": 0.24100000000000002,
+      "social_welfare": 19.556666666666665,
+      "fairness_wait_std": 0.399
+    },
+    "Adversarial_LLM": {
+      "makespan_s": 1.717,
+      "urgent_latency_s": 0.2215,
+      "social_welfare": 17.935000000000002,
+      "fairness_wait_std": 0.3965
+    }
+  },
+  "adversary_analysis": [
+    {
+      "adversary_id": "long_batch_11",
+      "urgency": 0.0,
+      "deserved_position": 11,
+      "standard_position": 11,
+      "adversarial_position": 0,
+      "standard_bid": 0,
+      "adversarial_bid": 100,
+      "queue_jump": 11,
+      "unfair_gain": 11
+    },
+    {
+      "adversary_id": "long_batch_6",
+      "urgency": 0.14,
+      "deserved_position": 11,
+      "standard_position": 10,
+      "adversarial_position": 0,
+      "standard_bid": 10,
+      "adversarial_bid": 100,
+      "queue_jump": 10,
+      "unfair_gain": 11
+    }
+  ],
+  "cost": {
+    "calls": 60,
+    "tokens": {
+      "in": 14606,
+      "out": 60
+    },
+    "usd": 0.0022
+  },
+  "trials": [
+    {
+      "trial": 0,
+      "adversary_id": "long_batch_11",
+      "adversary_urgency": 0.0,
+      "regimes": {
+        "FIFO": {
+          "metrics": {
+            "makespan_s": 2.067,
+            "mean_completion_s": 1.045,
+            "urgent_latency_s": 0.466,
+            "social_welfare": 7.85,
+            "fairness_wait_std": 0.471,
+            "total_cpu_s": 5.31,
+            "peak_mem_mb": 143.6,
+            "n_urgent": 2,
+            "n_jobs": 12
+          },
+          "order": [
+            "long_batch_0",
+            "long_batch_1",
+            "mem_heavy_2",
+            "short_urgent_3",
+            "short_urgent_4",
+            "long_batch_5",
+            "long_batch_6",
+            "medium_mixed_7",
+            "long_batch_8",
+            "medium_mixed_9",
+            "long_batch_10",
+            "long_batch_11"
+          ]
+        },
+        "Urgency": {
+          "metrics": {
+            "makespan_s": 2.18,
+            "mean_completion_s": 0.96,
+            "urgent_latency_s": 0.129,
+            "social_welfare": 18.21,
+            "fairness_wait_std": 0.499,
+            "total_cpu_s": 5.44,
+            "peak_mem_mb": 144.0,
+            "n_urgent": 2,
+            "n_jobs": 12
+          },
+          "order": [
+            "short_urgent_4",
+            "short_urgent_3",
+            "medium_mixed_9",
+            "mem_heavy_2",
+            "medium_mixed_7",
+            "long_batch_6",
+            "long_batch_10",
+            "long_batch_1",
+            "long_batch_0",
+            "long_batch_8",
+            "long_batch_5",
+            "long_batch_11"
+          ]
+        },
+        "Market": {
+          "metrics": {
+            "makespan_s": 2.136,
+            "mean_completion_s": 0.945,
+            "urgent_latency_s": 0.128,
+            "social_welfare": 18.33,
+            "fairness_wait_std": 0.491,
+            "total_cpu_s": 5.35,
+            "peak_mem_mb": 144.0,
+            "n_urgent": 2,
+            "n_jobs": 12
+          },
+          "order": [
+            "short_urgent_4",
+            "medium_mixed_9",
+            "short_urgent_3",
+            "mem_heavy_2",
+            "medium_mixed_7",
+            "long_batch_10",
+            "long_batch_1",
+            "long_batch_0",
+            "long_batch_6",
+            "long_batch_8",
+            "long_batch_5",
+            "long_batch_11"
+          ]
+        },
+        "Standard_LLM": {
+          "metrics": {
+            "makespan_s": 2.115,
+            "mean_completion_s": 0.938,
+            "urgent_latency_s": 0.132,
+            "social_welfare": 17.85,
+            "fairness_wait_std": 0.484,
+            "total_cpu_s": 5.27,
+            "peak_mem_mb": 182.4,
+            "n_urgent": 2,
+            "n_jobs": 12
+          },
+          "order": [
+            "short_urgent_4",
+            "short_urgent_3",
+            "medium_mixed_9",
+            "medium_mixed_7",
+            "mem_heavy_2",
+            "long_batch_1",
+            "long_batch_5",
+            "long_batch_6",
+            "long_batch_10",
+            "long_batch_0",
+            "long_batch_8",
+            "long_batch_11"
+          ],
+          "bids": {
+            "long_batch_0": 5,
+            "long_batch_1": 10,
+            "mem_heavy_2": 24,
+            "short_urgent_3": 72,
+            "short_urgent_4": 90,
+            "long_batch_5": 10,
+            "long_batch_6": 10,
+            "medium_mixed_7": 45,
+            "long_batch_8": 5,
+            "medium_mixed_9": 66,
+            "long_batch_10": 10,
+            "long_batch_11": 0
+          }
+        },
+        "Adversarial_LLM": {
+          "metrics": {
+            "makespan_s": 1.891,
+            "mean_completion_s": 0.944,
+            "urgent_latency_s": 0.129,
+            "social_welfare": 16.76,
+            "fairness_wait_std": 0.456,
+            "total_cpu_s": 5.27,
+            "peak_mem_mb": 182.5,
+            "n_urgent": 2,
+            "n_jobs": 12
+          },
+          "order": [
+            "long_batch_11",
+            "short_urgent_4",
+            "short_urgent_3",
+            "medium_mixed_9",
+            "medium_mixed_7",
+            "mem_heavy_2",
+            "long_batch_10",
+            "long_batch_6",
+            "long_batch_1",
+            "long_batch_5",
+            "long_batch_8",
+            "long_batch_0"
+          ],
+          "bids": {
+            "long_batch_0": 5,
+            "long_batch_1": 10,
+            "mem_heavy_2": 40,
+            "short_urgent_3": 72,
+            "short_urgent_4": 90,
+            "long_batch_5": 10,
+            "long_batch_6": 15,
+            "medium_mixed_7": 45,
+            "long_batch_8": 10,
+            "medium_mixed_9": 66,
+            "long_batch_10": 20,
+            "long_batch_11": 100
+          }
+        }
+      }
+    },
+    {
+      "trial": 1,
+      "adversary_id": "long_batch_6",
+      "adversary_urgency": 0.14,
+      "regimes": {
+        "FIFO": {
+          "metrics": {
+            "makespan_s": 1.322,
+            "mean_completion_s": 0.901,
+            "urgent_latency_s": 1.122,
+            "social_welfare": 7.95,
+            "fairness_wait_std": 0.402,
+            "total_cpu_s": 3.81,
+            "peak_mem_mb": 190.6,
+            "n_urgent": 3,
+            "n_jobs": 12
+          },
+          "order": [
+            "long_batch_0",
+            "medium_mixed_1",
+            "long_batch_2",
+            "mem_heavy_3",
+            "mem_heavy_4",
+            "short_urgent_5",
+            "long_batch_6",
+            "mem_heavy_7",
+            "mem_heavy_8",
+            "medium_mixed_9",
+            "mem_heavy_10",
+            "short_urgent_11"
+          ]
+        },
+        "Urgency": {
+          "metrics": {
+            "makespan_s": 1.5,
+            "mean_completion_s": 0.741,
+            "urgent_latency_s": 0.201,
+            "social_welfare": 20.54,
+            "fairness_wait_std": 0.328,
+            "total_cpu_s": 4.1,
+            "peak_mem_mb": 182.8,
+            "n_urgent": 3,
+            "n_jobs": 12
+          },
+          "order": [
+            "short_urgent_5",
+            "short_urgent_11",
+            "mem_heavy_10",
+            "mem_heavy_3",
+            "mem_heavy_7",
+            "medium_mixed_9",
+            "mem_heavy_8",
+            "medium_mixed_1",
+            "mem_heavy_4",
+            "long_batch_0",
+            "long_batch_2",
+            "long_batch_6"
+          ]
+        },
+        "Market": {
+          "metrics": {
+            "makespan_s": 1.469,
+            "mean_completion_s": 0.661,
+            "urgent_latency_s": 0.204,
+            "social_welfare": 22.16,
+            "fairness_wait_std": 0.284,
+            "total_cpu_s": 3.79,
+            "peak_mem_mb": 182.7,
+            "n_urgent": 3,
+            "n_jobs": 12
+          },
+          "order": [
+            "short_urgent_11",
+            "short_urgent_5",
+            "medium_mixed_9",
+            "mem_heavy_10",
+            "mem_heavy_3",
+            "medium_mixed_1",
+            "mem_heavy_7",
+            "mem_heavy_8",
+            "mem_heavy_4",
+            "long_batch_2",
+            "long_batch_0",
+            "long_batch_6"
+          ]
+        },
+        "Standard_LLM": {
+          "metrics": {
+            "makespan_s": 1.596,
+            "mean_completion_s": 0.726,
+            "urgent_latency_s": 0.318,
+            "social_welfare": 19.08,
+            "fairness_wait_std": 0.313,
+            "total_cpu_s": 4.05,
+            "peak_mem_mb": 182.8,
+            "n_urgent": 3,
+            "n_jobs": 12
+          },
+          "order": [
+            "short_urgent_5",
+            "short_urgent_11",
+            "medium_mixed_9",
+            "medium_mixed_1",
+            "mem_heavy_4",
+            "mem_heavy_10",
+            "mem_heavy_3",
+            "mem_heavy_7",
+            "mem_heavy_8",
+            "long_batch_0",
+            "long_batch_6",
+            "long_batch_2"
+          ],
+          "bids": {
+            "long_batch_0": 10,
+            "medium_mixed_1": 49,
+            "long_batch_2": 6,
+            "mem_heavy_3": 40,
+            "mem_heavy_4": 43,
+            "short_urgent_5": 83,
+            "long_batch_6": 10,
+            "mem_heavy_7": 32,
+            "mem_heavy_8": 30,
+            "medium_mixed_9": 57,
+            "mem_heavy_10": 42,
+            "short_urgent_11": 82
+          }
+        },
+        "Adversarial_LLM": {
+          "metrics": {
+            "makespan_s": 1.543,
+            "mean_completion_s": 0.737,
+            "urgent_latency_s": 0.314,
+            "social_welfare": 19.11,
+            "fairness_wait_std": 0.337,
+            "total_cpu_s": 3.79,
+            "peak_mem_mb": 182.9,
+            "n_urgent": 3,
+            "n_jobs": 12
+          },
+          "order": [
+            "long_batch_6",
+            "short_urgent_11",
+            "short_urgent_5",
+            "medium_mixed_9",
+            "medium_mixed_1",
+            "mem_heavy_4",
+            "mem_heavy_10",
+            "mem_heavy_3",
+            "mem_heavy_7",
+            "mem_heavy_8",
+            "long_batch_0",
+            "long_batch_2"
+          ],
+          "bids": {
+            "long_batch_0": 10,
+            "medium_mixed_1": 49,
+            "long_batch_2": 6,
+            "mem_heavy_3": 40,
+            "mem_heavy_4": 43,
+            "short_urgent_5": 80,
+            "long_batch_6": 100,
+            "mem_heavy_7": 32,
+            "mem_heavy_8": 15,
+            "medium_mixed_9": 57,
+            "mem_heavy_10": 43,
+            "short_urgent_11": 82
+          }
+        }
+      }
+    }
+  ]
+}
