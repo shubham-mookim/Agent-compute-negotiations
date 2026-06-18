@@ -1,0 +1,394 @@
+{
+  "config": {
+    "n_jobs": 12,
+    "trials": 3,
+    "slots": 3,
+    "models": [
+      "gpt-4o-mini",
+      "gpt-4o"
+    ],
+    "base_iters": 415387
+  },
+  "summary": {
+    "Urgency": {
+      "social_welfare": 23.28,
+      "urgent_latency_s": 0.248,
+      "makespan_s": 1.7306666666666666
+    },
+    "FIFO": {
+      "social_welfare": 12.586666666666666,
+      "urgent_latency_s": 0.7356666666666667,
+      "makespan_s": 1.593
+    },
+    "gpt-4o-mini": {
+      "social_welfare": 22.573333333333334,
+      "urgent_latency_s": 0.20366666666666666,
+      "makespan_s": 1.6106666666666667
+    },
+    "gpt-4o": {
+      "social_welfare": 24.68,
+      "urgent_latency_s": 0.18233333333333335,
+      "makespan_s": 1.553
+    }
+  },
+  "agreement": [
+    0.90625,
+    0.9672131147540983,
+    0.8709677419354839
+  ],
+  "cost": {
+    "by_model": {
+      "gpt-4o-mini": {
+        "in": 8845,
+        "out": 36
+      },
+      "gpt-4o": {
+        "in": 8845,
+        "out": 36
+      }
+    },
+    "usd": 0.0238,
+    "calls": 72
+  },
+  "trials": [
+    {
+      "trial": 0,
+      "models": {
+        "Urgency": {
+          "metrics": {
+            "makespan_s": 2.049,
+            "mean_completion_s": 1.015,
+            "urgent_latency_s": 0.39,
+            "social_welfare": 22.06,
+            "fairness_wait_std": 0.53,
+            "total_cpu_s": 5.49,
+            "peak_mem_mb": 144.5,
+            "n_urgent": 4,
+            "n_jobs": 12
+          }
+        },
+        "FIFO": {
+          "metrics": {
+            "makespan_s": 1.454,
+            "mean_completion_s": 0.863,
+            "urgent_latency_s": 0.826,
+            "social_welfare": 10.98,
+            "fairness_wait_std": 0.408,
+            "total_cpu_s": 3.86,
+            "peak_mem_mb": 144.5,
+            "n_urgent": 4,
+            "n_jobs": 12
+          }
+        },
+        "gpt-4o-mini": {
+          "metrics": {
+            "makespan_s": 1.773,
+            "mean_completion_s": 0.804,
+            "urgent_latency_s": 0.254,
+            "social_welfare": 20.36,
+            "fairness_wait_std": 0.381,
+            "total_cpu_s": 4.56,
+            "peak_mem_mb": 182.6,
+            "n_urgent": 4,
+            "n_jobs": 12
+          },
+          "bids": {
+            "mem_heavy_0": 52,
+            "medium_mixed_1": 52,
+            "medium_mixed_2": 45,
+            "long_batch_3": 5,
+            "short_urgent_4": 79,
+            "long_batch_5": 3,
+            "medium_mixed_6": 54,
+            "mem_heavy_7": 37,
+            "long_batch_8": 10,
+            "medium_mixed_9": 32,
+            "short_urgent_10": 73,
+            "short_urgent_11": 88
+          },
+          "order": [
+            "short_urgent_11",
+            "short_urgent_4",
+            "short_urgent_10",
+            "medium_mixed_6",
+            "mem_heavy_0",
+            "medium_mixed_1",
+            "medium_mixed_2",
+            "mem_heavy_7",
+            "medium_mixed_9",
+            "long_batch_8",
+            "long_batch_3",
+            "long_batch_5"
+          ]
+        },
+        "gpt-4o": {
+          "metrics": {
+            "makespan_s": 1.509,
+            "mean_completion_s": 0.708,
+            "urgent_latency_s": 0.195,
+            "social_welfare": 25.69,
+            "fairness_wait_std": 0.324,
+            "total_cpu_s": 4.11,
+            "peak_mem_mb": 182.7,
+            "n_urgent": 4,
+            "n_jobs": 12
+          },
+          "bids": {
+            "mem_heavy_0": 70,
+            "medium_mixed_1": 69,
+            "medium_mixed_2": 47,
+            "long_batch_3": 5,
+            "short_urgent_4": 89,
+            "long_batch_5": 5,
+            "medium_mixed_6": 27,
+            "mem_heavy_7": 53,
+            "long_batch_8": 10,
+            "medium_mixed_9": 25,
+            "short_urgent_10": 73,
+            "short_urgent_11": 88
+          },
+          "order": [
+            "short_urgent_4",
+            "short_urgent_11",
+            "short_urgent_10",
+            "mem_heavy_0",
+            "medium_mixed_1",
+            "mem_heavy_7",
+            "medium_mixed_2",
+            "medium_mixed_6",
+            "medium_mixed_9",
+            "long_batch_8",
+            "long_batch_3",
+            "long_batch_5"
+          ]
+        }
+      }
+    },
+    {
+      "trial": 1,
+      "models": {
+        "Urgency": {
+          "metrics": {
+            "makespan_s": 1.643,
+            "mean_completion_s": 0.81,
+            "urgent_latency_s": 0.144,
+            "social_welfare": 23.03,
+            "fairness_wait_std": 0.397,
+            "total_cpu_s": 4.72,
+            "peak_mem_mb": 182.7,
+            "n_urgent": 3,
+            "n_jobs": 12
+          }
+        },
+        "FIFO": {
+          "metrics": {
+            "makespan_s": 1.898,
+            "mean_completion_s": 1.077,
+            "urgent_latency_s": 0.701,
+            "social_welfare": 10.45,
+            "fairness_wait_std": 0.467,
+            "total_cpu_s": 5.21,
+            "peak_mem_mb": 182.7,
+            "n_urgent": 3,
+            "n_jobs": 12
+          }
+        },
+        "gpt-4o-mini": {
+          "metrics": {
+            "makespan_s": 1.613,
+            "mean_completion_s": 0.787,
+            "urgent_latency_s": 0.13,
+            "social_welfare": 25.13,
+            "fairness_wait_std": 0.391,
+            "total_cpu_s": 4.65,
+            "peak_mem_mb": 182.8,
+            "n_urgent": 3,
+            "n_jobs": 12
+          },
+          "bids": {
+            "long_batch_0": 5,
+            "short_urgent_1": 78,
+            "mem_heavy_2": 35,
+            "long_batch_3": 1,
+            "mem_heavy_4": 45,
+            "short_urgent_5": 82,
+            "long_batch_6": 10,
+            "medium_mixed_7": 31,
+            "short_urgent_8": 98,
+            "long_batch_9": 14,
+            "long_batch_10": 10,
+            "long_batch_11": 3
+          },
+          "order": [
+            "short_urgent_8",
+            "short_urgent_5",
+            "short_urgent_1",
+            "mem_heavy_4",
+            "mem_heavy_2",
+            "medium_mixed_7",
+            "long_batch_9",
+            "long_batch_6",
+            "long_batch_10",
+            "long_batch_0",
+            "long_batch_11",
+            "long_batch_3"
+          ]
+        },
+        "gpt-4o": {
+          "metrics": {
+            "makespan_s": 1.748,
+            "mean_completion_s": 0.816,
+            "urgent_latency_s": 0.133,
+            "social_welfare": 24.43,
+            "fairness_wait_std": 0.406,
+            "total_cpu_s": 4.82,
+            "peak_mem_mb": 182.9,
+            "n_urgent": 3,
+            "n_jobs": 12
+          },
+          "bids": {
+            "long_batch_0": 10,
+            "short_urgent_1": 78,
+            "mem_heavy_2": 59,
+            "long_batch_3": 10,
+            "mem_heavy_4": 50,
+            "short_urgent_5": 91,
+            "long_batch_6": 10,
+            "medium_mixed_7": 31,
+            "short_urgent_8": 98,
+            "long_batch_9": 15,
+            "long_batch_10": 15,
+            "long_batch_11": 5
+          },
+          "order": [
+            "short_urgent_8",
+            "short_urgent_5",
+            "short_urgent_1",
+            "mem_heavy_2",
+            "mem_heavy_4",
+            "medium_mixed_7",
+            "long_batch_9",
+            "long_batch_10",
+            "long_batch_0",
+            "long_batch_3",
+            "long_batch_6",
+            "long_batch_11"
+          ]
+        }
+      }
+    },
+    {
+      "trial": 2,
+      "models": {
+        "Urgency": {
+          "metrics": {
+            "makespan_s": 1.5,
+            "mean_completion_s": 0.663,
+            "urgent_latency_s": 0.21,
+            "social_welfare": 24.75,
+            "fairness_wait_std": 0.305,
+            "total_cpu_s": 3.75,
+            "peak_mem_mb": 182.8,
+            "n_urgent": 4,
+            "n_jobs": 12
+          }
+        },
+        "FIFO": {
+          "metrics": {
+            "makespan_s": 1.427,
+            "mean_completion_s": 0.744,
+            "urgent_latency_s": 0.68,
+            "social_welfare": 16.33,
+            "fairness_wait_std": 0.351,
+            "total_cpu_s": 3.63,
+            "peak_mem_mb": 190.7,
+            "n_urgent": 4,
+            "n_jobs": 12
+          }
+        },
+        "gpt-4o-mini": {
+          "metrics": {
+            "makespan_s": 1.446,
+            "mean_completion_s": 0.678,
+            "urgent_latency_s": 0.227,
+            "social_welfare": 22.23,
+            "fairness_wait_std": 0.31,
+            "total_cpu_s": 3.72,
+            "peak_mem_mb": 182.9,
+            "n_urgent": 4,
+            "n_jobs": 12
+          },
+          "bids": {
+            "short_urgent_0": 73,
+            "long_batch_1": 10,
+            "medium_mixed_2": 40,
+            "short_urgent_3": 87,
+            "mem_heavy_4": 30,
+            "medium_mixed_5": 35,
+            "medium_mixed_6": 66,
+            "medium_mixed_7": 40,
+            "mem_heavy_8": 30,
+            "long_batch_9": 10,
+            "short_urgent_10": 75,
+            "medium_mixed_11": 70
+          },
+          "order": [
+            "short_urgent_3",
+            "short_urgent_10",
+            "short_urgent_0",
+            "medium_mixed_11",
+            "medium_mixed_6",
+            "medium_mixed_2",
+            "medium_mixed_7",
+            "medium_mixed_5",
+            "mem_heavy_4",
+            "mem_heavy_8",
+            "long_batch_1",
+            "long_batch_9"
+          ]
+        },
+        "gpt-4o": {
+          "metrics": {
+            "makespan_s": 1.402,
+            "mean_completion_s": 0.663,
+            "urgent_latency_s": 0.219,
+            "social_welfare": 23.92,
+            "fairness_wait_std": 0.305,
+            "total_cpu_s": 3.68,
+            "peak_mem_mb": 182.9,
+            "n_urgent": 4,
+            "n_jobs": 12
+          },
+          "bids": {
+            "short_urgent_0": 73,
+            "long_batch_1": 10,
+            "medium_mixed_2": 30,
+            "short_urgent_3": 87,
+            "mem_heavy_4": 66,
+            "medium_mixed_5": 52,
+            "medium_mixed_6": 70,
+            "medium_mixed_7": 22,
+            "mem_heavy_8": 57,
+            "long_batch_9": 10,
+            "short_urgent_10": 75,
+            "medium_mixed_11": 70
+          },
+          "order": [
+            "short_urgent_3",
+            "short_urgent_10",
+            "short_urgent_0",
+            "medium_mixed_6",
+            "medium_mixed_11",
+            "mem_heavy_4",
+            "mem_heavy_8",
+            "medium_mixed_5",
+            "medium_mixed_2",
+            "medium_mixed_7",
+            "long_batch_1",
+            "long_batch_9"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -278,6 +278,16 @@ def run_exp13():
     run_adversarial_test(n_jobs=12, trials=3, max_calls=60)
 
 
+def run_exp14():
+    from experiments.exp14_scaling import run_scaling
+    run_scaling()
+
+
+def run_exp15():
+    from experiments.exp15_cross_model import run_cross_model
+    run_cross_model(n_jobs=12, trials=3, max_calls=80)
+
+
 def main():
     Path("logs").mkdir(exist_ok=True)
 
@@ -295,6 +305,8 @@ def main():
         "11": run_exp11,
         "12": run_exp12,
         "13": run_exp13,
+        "14": run_exp14,
+        "15": run_exp15,
     }
 
     if len(sys.argv) > 1:
@@ -302,7 +314,7 @@ def main():
         if exp in runners:
             runners[exp]()
         else:
-            print(f"Unknown experiment: {exp}. Use 1-7.")
+            print(f"Unknown experiment: {exp}. Use 1-15.")
     else:
         for key in sorted(runners):
             runners[key]()

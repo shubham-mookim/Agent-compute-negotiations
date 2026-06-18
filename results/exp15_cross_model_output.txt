@@ -1,0 +1,49 @@
+================================================================
+  EXPERIMENT 15: CROSS-MODEL LLM ALLOCATION
+================================================================
+
+Models: ['gpt-4o-mini', 'gpt-4o']
+Hard call budget: 80 calls
+
+Host: 4 cores, 3 slots, base work = 415,387 iterations
+
+--- Trial 0 (12 jobs, 4 urgent) ---
+  gpt-4o-mini    welfare=20.4 urgent_lat=0.25s
+  gpt-4o         welfare=25.7 urgent_lat=0.20s
+  Bid-order agreement (gpt-4o-mini vs gpt-4o): 0.91
+
+--- Trial 1 (12 jobs, 3 urgent) ---
+  gpt-4o-mini    welfare=25.1 urgent_lat=0.13s
+  gpt-4o         welfare=24.4 urgent_lat=0.13s
+  Bid-order agreement (gpt-4o-mini vs gpt-4o): 0.97
+
+--- Trial 2 (12 jobs, 4 urgent) ---
+  gpt-4o-mini    welfare=22.2 urgent_lat=0.23s
+  gpt-4o         welfare=23.9 urgent_lat=0.22s
+  Bid-order agreement (gpt-4o-mini vs gpt-4o): 0.87
+
+================================================================
+  SUMMARY (averaged across trials)
+================================================================
+
+Regime           Welfare  UrgentLat   Makespan
+----------------------------------------------
+Urgency             23.3      0.25s      1.73s
+FIFO                12.6      0.74s      1.59s
+gpt-4o-mini         22.6      0.20s      1.61s
+gpt-4o              24.7      0.18s      1.55s
+
+--- Analysis ---
+  Mean inter-model bid agreement: 0.91
+  gpt-4o-mini welfare vs centralized urgency: 22.6 vs 23.3 (-3%)
+  gpt-4o welfare vs centralized urgency: 24.7 vs 23.3 (+6%)
+  gpt-4o vs gpt-4o-mini welfare: 24.7 vs 22.6 (+9.3%)
+  >> Larger model DID produce better allocation on this task.
+
+--- Cost ---
+  gpt-4o-mini    8845 in / 36 out → $0.0013
+  gpt-4o         8845 in / 36 out → $0.0225
+  API calls made: 72 (budget 80)
+  Total cost: $0.0238
+
+  Results dumped to: /home/user/try/results/exp15_cross_model.json
